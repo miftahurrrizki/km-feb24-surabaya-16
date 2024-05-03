@@ -44,15 +44,16 @@ body, h1, h2, h3, h4, h5, h6 {
     font-size: 17px;
   }
   /* Change the color of links on hover */
-  .topnav a:hover {
+  .topnav-hover:hover {
     background-color: #ddd;
     color: black;
     border-radius: 25px;
   }
-  .topnav a.no-hover:hover {
+  /*.topnav a.no-hover:hover {
     background-color: white;
-    color: initial; /* atau warna teks yang diinginkan */
-}
+    color: initial;  atau warna teks yang diinginkan 
+  
+}*/
   /* Add a color to the active/current link */
   .topnav-a-active {
     float: right;
@@ -65,3 +66,13 @@ body, h1, h2, h3, h4, h5, h6 {
     color: white;
     border-radius: 25px;
   }
+
+  .topnav-button-position {
+    margin-top: 20%;
+  }
+
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+}
