@@ -63,16 +63,49 @@ body, h1, h2, h3, h4, h5, h6 {
     text-decoration: none;
     font-size: 17px;
     background-color: #ffc107;
-    color: white;
-    border-radius: 25px;
-  }
+    color: white;  
+}
 
-  .topnav-button-position {
+.topnav-button-position {
     margin-top: 20%;
   }
-
 
 .container {
   display: flex;
   flex-wrap: wrap;
 }
+
+  .skorcard{
+    position: absolute;
+    top: 60px;
+    width: 95%;
+    left: 0;
+}
+.cards{
+    width: 100%;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 50px;
+    background: rgb(222, 217, 217);
+}
+.cards .card{
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 7px 25px 0 rgba(0, 0, 0, 0.08);
+}
+.card-content{
+    text-align: justify;
+}
+.card-name{
+    font-size: 30px;
+}
+.number{
+    font-size: 30px;
+    font-weight: 200;
+    border-radius: 25px;
+  }
