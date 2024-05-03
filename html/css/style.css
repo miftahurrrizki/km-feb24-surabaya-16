@@ -1,45 +1,79 @@
 body, h1, h2, h3, h4, h5, h6 {
-    font-family: "Roboto";
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .font-weight-bold {
   font-weight: 700 ;
 }
-
-.rectangle {
-  height: 1px;
-  width: 800px;
-  background-color: #ffc107;
+.kotak {
+  padding-top: 1%;
+  margin-bottom: -2%;
 }
 
 .topnav {
     background-color: white;
     overflow: hidden;
+
   }
   
   /* Style the links inside the navigation bar */
-  .topnav a {
-    float: left;
-    color: #f2f2f2;
+  .topnav-a {
+    float: right;
+    color: black;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
     font-size: 17px;
   }
   
-  /* Change the color of links on hover 
-  .topnav a:hover {
-    background-color: #ddd;
-    color: white;
-  }*/
-  
-  /* Add a color to the active/current link */
-  .topnav a.active {
-    background-color: #04AA6D;
-    color: white;
+  .topnav-special {
+    float: left;
+    color: black;
+    text-align: left;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
   }
 
+  .topnav-logo {
+    float: left;
+    color: black;
+    text-align: left;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+  }
+  /* Change the color of links on hover */
+  .topnav-hover:hover {
+    background-color: #ddd;
+    color: black;
+    border-radius: 25px;
+  }
+  /*.topnav a.no-hover:hover {
+    background-color: white;
+    color: initial;  atau warna teks yang diinginkan 
+  
+}*/
+  /* Add a color to the active/current link */
+  .topnav-a-active {
+    float: right;
+    color: black;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+    font-size: 17px;
+    background-color: #ffc107;
+    color: white;  
+}
 
+.topnav-button-position {
+    margin-top: 20%;
+  }
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+}
 
   .skorcard{
     position: absolute;
@@ -63,18 +97,15 @@ body, h1, h2, h3, h4, h5, h6 {
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 7px 25px 0 rgba(0, 0, 0, 0.08);
-   
-    
 }
 .card-content{
     text-align: justify;
 }
 .card-name{
     font-size: 30px;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 .number{
     font-size: 30px;
     font-weight: 200;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-}
+    border-radius: 25px;
+  }
