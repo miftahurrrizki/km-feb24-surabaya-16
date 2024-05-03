@@ -17,6 +17,10 @@ body{
 }
 
 /*========================================================= HEADER ========================================*/
+.image-responsive{
+  width: 100%;
+  height: auto;
+}
 .topnav {
     background-color: white;
     overflow: hidden;
@@ -45,10 +49,10 @@ body{
   .topnav-logo {
     float: left;
     color: black;
-    text-align: left;
     padding: 14px 16px;
     text-decoration: none;
     font-size: 17px;
+    align-items: center;
   }
   /* Change the color of links on hover */
   .topnav-hover:hover {
@@ -76,6 +80,7 @@ body{
 
   .topnav-button-position {
     margin-top: 3%;
+    margin-bottom: 3em;
   }
 
 /*========================================================= CONTAINER ========================================*/
@@ -108,12 +113,14 @@ body{
 
 /*========================================================= BUTTON CSS ========================================*/
 .button{
+  width: 100%;
+  height: auto;
   text-align: center;
-  padding: 14px 20px;
+  padding: 14px 30px;
   text-decoration: none;
   font-size: 12px;
   background-color: rgb(230, 230, 230);
-  border-radius: 15px;
+  border-radius: 10px;
   border-color: white;
 }
 
@@ -229,8 +236,8 @@ select::-ms-expand {
   width: 100%;
   padding: 20px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-gap: 50px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Menggunakan auto-fit untuk menyesuaikan jumlah kolom dan minmax untuk menentukan lebar minimum dan maksimum kartu */
+  grid-gap: 20px; /* Mengurangi jarak antara kartu */
   background: #f3f3f3;
 }
 .cards .card{
@@ -253,4 +260,16 @@ select::-ms-expand {
   font-size: 20px;
   font-weight: 200;
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+@media screen and (max-width: 768px) {
+  /* Ketika lebar layar kurang dari atau sama dengan 768px */
+  .cards {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Menyesuaikan jumlah kolom dan lebar kartu */
+    grid-gap: 10px; /* Mengurangi jarak antara kartu */
+  }
+
+  .topnav-logo {
+    display: none;
+  }
 }
