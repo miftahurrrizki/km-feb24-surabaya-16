@@ -1,5 +1,11 @@
-body, h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6 {
     font-family: Arial, Helvetica, sans-serif;
+    
+}
+
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12;
 }
 
 .font-weight-bold {
@@ -10,6 +16,7 @@ body, h1, h2, h3, h4, h5, h6 {
   margin-bottom: -2%;
 }
 
+/*========================================================= HEADER ========================================*/
 .topnav {
     background-color: white;
     overflow: hidden;
@@ -68,11 +75,182 @@ body, h1, h2, h3, h4, h5, h6 {
   }
 
   .topnav-button-position {
-    margin-top: 20%;
+    margin-top: 3%;
   }
 
-
+/*========================================================= CONTAINER ========================================*/
 .container {
+  display:flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding:0 10px;
+  margin-bottom: 2em;
+}
+.header {
+  padding: 10px;
+  text-align: center;
+}
+
+/*========================================================= SECTION CSS ========================================*/
+.sections {
   display: flex;
   flex-wrap: wrap;
+  
+}
+.sections > div {
+  margin-right: 2%;
+  margin-left: 1%;
+  text-align: center;
+  line-height: 25px;
+  font-size: 12px;
+  align-content: center;
+}
+
+/*========================================================= BUTTON CSS ========================================*/
+.button{
+  text-align: center;
+  padding: 14px 20px;
+  text-decoration: none;
+  font-size: 12px;
+  background-color: rgb(230, 230, 230);
+  border-radius: 15px;
+  border-color: white;
+}
+
+.button:hover {
+  background-color: #04AA6D; 
+  color: white;
+}
+
+/*========================================================= DROP DOWN CSS ========================================*/
+select {
+  /* Reset Select */
+  appearance: none;
+  outline: 20px red;
+  border: 0;
+  box-shadow: none;
+  /* Personalize */
+  flex: 1;
+  color: black;
+  padding-left: 20px;
+  background-color: #efeded;
+  cursor: pointer;
+}
+/* Remove IE arrow */
+select::-ms-expand {
+  display: none;
+}
+/* Custom Select wrapper */
+.select {
+  position: relative;
+  display: flex;
+  width: 17em;
+  height: 3.5em;
+  border-radius: .25em;
+  overflow: hidden;
+  margin-top: 5px;
+}
+/* Arrow */
+.select::after {
+  content: '\25BC';
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 1em;
+  color: black;
+  background-color: #cdcdcd;
+  transition: .25s all ease;
+  pointer-events: none;
+}
+/* Transition */
+.select:hover::after {
+  color: #f39c12;
+}
+
+/*========================================================= SLIDER ========================================*/
+.slider-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  text-align: left;
+  
+}
+.slider-items {
+  margin-top: -10px;
+  text-align: left;
+  color: black;
+}
+
+.slider-width {
+  width: 100%;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 15px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #f39c12;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #f39c12;
+  cursor: pointer;
+}
+
+/*========================================================= SLIDER ========================================*/
+.skorcard{
+  position: flex;
+  width: 97%;
+  left: 0;
+}
+.cards{
+  width: 100%;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 50px;
+  background: #f3f3f3;
+}
+.cards .card{
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 7px 25px 0 rgba(0, 0, 0, 0.08);
+}
+.card-content{
+  text-align: justify;
+}
+.card-name{
+  font-size: 20px;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+.number{
+  font-size: 20px;
+  font-weight: 200;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
