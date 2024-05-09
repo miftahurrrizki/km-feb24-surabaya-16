@@ -3,7 +3,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="html/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     
 </head>
@@ -13,7 +14,7 @@
         <div class="container">
             <!--Header-->
             <div class="topnav header">
-                <a class="topnav-logo"><img class="image-responsive" src="assets/logo-header-resized-120px.png" alt="Logo Perusahaan"></a>
+                <a class="topnav-logo"><img class="image-responsive" src="html/assets/logo-header-resized-120px.png" alt="Logo Perusahaan"></a>
                 <a class="topnav-special">
                     <div>
                         <div class="kotak">
@@ -22,7 +23,7 @@
                             </h1>
                         </div>
                         <div>
-                            <img class="image-responsive" src="assets/Rectangle 205.png" alt="garis">
+                            <img class="image-responsive" src="html/assets/Rectangle 205.png" alt="garis">
                         </div>
                     </div>
                 </a>
@@ -119,12 +120,10 @@
                 <div>
                     <canvas id="myChart"></canvas>
                 </div>
-                
-                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                
+
                 <script>
                     const ctx = document.getElementById('myChart');
-                    
+
                     fetch('http://localhost:3000/data')
                     .then(function(response){
                         if(response.ok == true){
@@ -133,32 +132,48 @@
                     })
                     .then(function(data){
                         console.log(data);
-                        createChart(data);
+                        const aggregatedData = aggregateSalesByCategory(data);
+                        createChart(aggregatedData);
                     });
 
-                    
+                    function aggregateSalesByCategory(data) {
+                        const aggregatedData = {};
+
+                        data.forEach(row => {
+                            if (aggregatedData[row.Category]) {
+                                aggregatedData[row.Category] += row.Sales;
+                            } else {
+                                aggregatedData[row.Category] = row.Sales;
+                            }
+                        });
+
+                        return aggregatedData;
+                    }
 
                     function createChart(data){
-                    new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: data.map(row => row.Category),
-                        datasets: [{
-                        label: '# of Votes',
-                        data: data.map(row => row.Sales),
-                        borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                        }
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: Object.keys(data),
+                                datasets: [{
+                                    label: 'Total Sales by Category',
+                                    data: Object.values(data),
+                                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                    borderColor: 'rgba(54, 162, 235, 1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
                     }
-                    });
-                }
                 </script>
+            
             </div>
 
             <div>
