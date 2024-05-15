@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Bar Chart Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* CSS untuk membuat canvas responsif */
+        canvas {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Elemen canvas untuk chart -->
+    <canvas id="myChart"></canvas>
+
+    <script>
+        // Data untuk chart
+        const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+        const data = {
+            labels: labels,
+            datasets: [{
+                label: 'My First Dataset',
+                data: [65, 59, 80, 81, 56, 55, 40],
+                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        // Konfigurasi chart
+        const config = {
+            type: 'bar',
+            data: data,
+            options: {
+                responsive: true, // Aktifkan responsif
+                maintainAspectRatio: false, // Buat chart tidak mempertahankan rasio aspek
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        // Membuat chart
+        var myChart = new Chart(
+            document.getElementById('myChart'),
+            config
+        );
+    </script>
+</body>
+</html>

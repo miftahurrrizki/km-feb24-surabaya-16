@@ -40,26 +40,22 @@
 
                  <!--DROPDOWN STATE-->
                 <div class="select">
-                    <select name="state" id="state">
-                        <option value="#">California</option>
-                        <option value="#">New York City</option>
+                    <select name="state" id="dropState">
+                        <option value="#" selected hidden> Satate </option>
                     </select>
                 </div>
                 
                  <!--DROPDOWN CATEGORY-->
                 <div class="select">
-                    <select name="category" id="state">
-                        <option value="#">Office Supply</option>
-                        <option value="#">Furniture</option>
-                        <option value="#">Technology</option>
+                    <select name="category" id="dropCategory">
+                        <option value="#" selected hidden> Category </option>
                     </select>
                 </div>
 
                  <!--SEGMENT-->
                 <div class="select">
-                    <select name="segment" id="state">
-                        <option value="#">California</option>
-                        <option value="#">New York City</option>
+                    <select name="segment" id="dropSegment">
+                        <option value="#" selected hidden> Segment </option>
                     </select>
                 </div>
 
@@ -74,96 +70,189 @@
             </div>
         </div>
 
+        <!--SCORE CARD-->
         <div class="skorcard"> 
             <div class="cards">
                 <div class="card">
                     <div class="card-content">
                         <div class="card-name">Total Order</div>
-                        <div class="number">5.0 rb</div>
+                        <div class="number" id="cardOrder">5.0 rb</div>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-content">
                         <div class="card-name">Sales</div>
-                        <div class="number">$130,68 jt</div>
+                        <div class="number" id="cardSales"></div>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-content">
                         <div class="card-name">Profit</div>
-                        <div class="number">$23,91 jt</div>
+                        <div class="number" id="cardProfit">$23,91 jt</div>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-content">
                         <div class="card-name">Profit Ratio</div>
-                        <div class="number">18 %</div>
+                        <div class="number" id="cardProfitRatio">18 %</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div>
-            <div>
-                <script>
-                    /*fetch('http://localhost:3000/data')
-                    .then(response => response.json())
-                    .then(data => {
-                        // Lakukan sesuatu dengan data yang telah diambil
-                        console.log(data);
+        <div class="chartContainer">
+            <div class="left">
+                <canvas id="BarChartSalesPerCategory"></canvas>
+            </div>
+
+            <div class="right">
+                <canvas id="DummyChart"></canvas>
+            </div>
+    </section>
+    
+</body>
+  
+</html>
+
+
+<script>
+     //------------------------------ GENERAL FUNCTION ----------------------------------
+    const DataUrl = 'http://localhost:3000/data';
+            
+            // Ambil data dari json
+            function fetchData(url) {
+                return fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                    });*/
-                </script>
-
-                <div>
-                    <canvas id="myChart"></canvas>
-                </div>
-
-                <script>
-                    const ctx = document.getElementById('myChart');
-
-                    fetch('http://localhost:3000/data')
-                    .then(function(response){
-                        if(response.ok == true){
-                            return response.json();
-                        }
-                    })
-                    .then(function(data){
-                        console.log(data);
-                        const aggregatedData = aggregateSalesByCategory(data);
-                        createChart(aggregatedData);
+                        console.error('There was a problem with the fetch operation:', error);
                     });
-
-                    function aggregateSalesByCategory(data) {
-                        const aggregatedData = {};
-
-                        data.forEach(row => {
-                            if (aggregatedData[row.Category]) {
-                                aggregatedData[row.Category] += row.Sales;
-                            } else {
-                                aggregatedData[row.Category] = row.Sales;
-                            }
-                        });
-
-                        return aggregatedData;
+            }
+    
+            // Hitung Sales per Category
+            function processSalesData(data) {
+                const aggregatedData = {};
+    
+                data.forEach(row => {
+                    const category = row.Category;
+                    const sales = parseFloat(row.Sales.replace(/\$/g, '').replace(/,/g, ''));
+    
+                    // check unique category terus jumlahkan salesnya
+                    if (aggregatedData[category]) {
+                        aggregatedData[category] += sales;
+                    } else {
+                        // Jika kategori belum ada, tambahkan kategori baru
+                        aggregatedData[category] = sales;
                     }
+                });
+    
+                return aggregatedData;
+            }
 
-                    function createChart(data){
+        //------------------------------ SCORE CARD FUNCTION ----------------------------------
+            //------------------ Total Sales ------------------
+            function calculateTotalSales(data) {
+            let totalSales = 0;
+            data.forEach(row => {
+                const sales = parseFloat(row.Sales.replace(/\$/g, '').replace(/,/g, ''));
+                totalSales += sales;
+            });
+
+            return totalSales;
+            }
+
+            fetchData(DataUrl)
+                .then(data => {
+                    const totalSales = calculateTotalSales(data);
+                    const formattedTotalSales = totalSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    const cardSales = document.getElementById('cardSales');
+                    cardSales.innerText = `$ ${formattedTotalSales}`;
+                });
+        //------------------------------ FETCH DROP DOWN ----------------------------------
+
+         // Fungsi untuk mengisi dropdown
+         function isiDropdownFilter(selectElement, items) {
+            if (Array.isArray(items)) {
+                items.forEach(function(item) {
+                    const option = document.createElement('option');
+                    option.value = item;
+                    option.textContent = item;
+                    selectElement.appendChild(option);
+                });
+            } else {
+                console.error('Expected an array but got:', items);
+            }
+        }
+
+        // Ambil data dari server lokal
+        fetch('http://localhost:3000/data')
+            .then(function(response) {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network response was not ok.');
+                }
+            })
+            .then(function(data) {
+                console.log('Data received:', data);
+
+                const stateSelect = document.getElementById('dropState');
+                const categorySelect = document.getElementById('dropCategory');
+                const segmentSelect = document.getElementById('dropSegment');
+
+                // fetch nilai state dan category
+                const varStates = [];
+                const varCategories = [];
+                const varSegments = [];
+
+                data.forEach(function(item) {
+                    if (item.State && !varStates.includes(item.State)) {
+                        varStates.push(item.State);
+                    }
+                    if (item.Segment && !varCategories.includes(item.Segment)) {
+                        varCategories.push(item.Category);
+                    }
+                    if (item.Segment && !varSegments.includes(item.Segment)) {
+                        varSegments.push(item.Segment);
+                    }
+                });
+
+                // Isi dropdown state
+                isiDropdownFilter(stateSelect, varStates);
+
+                // Isi dropdown category
+                isiDropdownFilter(categorySelect, varCategories);
+
+                // Isi dropdown segment
+                isiDropdownFilter(segmentSelect, varSegments);
+            })
+            .catch(function(error) {
+                console.error('Fetch error:', error);
+            });
+
+            //------------------------------ BARCHART SALES PER CATEGORY --------------------------------
+                
+                    const ctx = document.getElementById('BarChartSalesPerCategory').getContext('2d');
+            
+                    // Fungsi untuk membuat chart berdasarkan data yang telah diproses
+                    function createChart(data) {
                         new Chart(ctx, {
                             type: 'bar',
                             data: {
-                                labels: Object.keys(data),
+                                labels: Object.keys(data), // Label adalah kategori
                                 datasets: [{
                                     label: 'Total Sales by Category',
-                                    data: Object.values(data),
-                                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                                    borderColor: 'rgba(54, 162, 235, 1)',
+                                    data: Object.values(data), // Data adalah total penjualan
                                     borderWidth: 1
                                 }]
                             },
                             options: {
+                                responsive: true, 
+                                maintainAspectRatio: false,
                                 scales: {
                                     y: {
                                         beginAtZero: true
@@ -172,16 +261,45 @@
                             }
                         });
                     }
-                </script>
             
-            </div>
+                    // Ambil data penjualan dari server, proses, dan buat chart
+                    fetchData(DataUrl)
+                        .then(data => {
+                            const processedData = processSalesData(data);
+                            createChart(processedData);
+                        });
 
-            <div>
+             //------------------------------ DUMMY BARCHART SALES PER CATEGORY --------------------------------               
+                const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+                const data = {
+                    labels: labels,
+                    datasets: [{
+                        label: 'My First Dataset',
+                        data: [65, 59, 80, 81, 56, 55, 40],
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                };
 
-            </div>
-        </div>
-    </section>
-    
-</body>
-  
-</html>
+                // Konfigurasi chart
+                const config = {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        responsive: true, // Aktifkan responsif
+                        maintainAspectRatio: false, // Buat chart tidak mempertahankan rasio aspek
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                };
+
+                // Membuat chart
+                var myChart = new Chart(
+                    document.getElementById('DummyChart'),
+                    config
+                );
+</script>
