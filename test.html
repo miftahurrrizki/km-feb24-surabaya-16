@@ -41,7 +41,7 @@
                  <!--DROPDOWN STATE-->
                 <div class="select">
                     <select name="state" id="stateSelect">
-                        <option value="">All Categories</option>
+                        <option value="">All State</option>
                     </select>
                 </div>
                 
@@ -55,7 +55,7 @@
                  <!--SEGMENT-->
                 <div class="select">
                     <select name="segment" id="segmentSelect">
-                        <option value="">All Categories</option>
+                        <option value="">All Segment</option>
                     </select>
                 </div>
 
@@ -99,7 +99,8 @@
                 </div>
             </div>
         </div>
-
+        
+        <!-- CHART ROW 1 -->
         <div class="chartContainer">
             <div class="left">
                 <h2>Sales by Category</h2>
@@ -110,6 +111,13 @@
                 <h2>Dummy</h2>
                 <div><canvas id="DummyChart"></canvas></div>
             </div>
+        </div>
+
+        <!-- CHART ROW 2 -->
+        <div>
+            <h2>YoY Sales Performance</h2>
+            <div><canvas id="LineChartSalesProfit"width="400" height="100"></canvas></div>
+        </div>
     </section>
     
 </body>
@@ -228,7 +236,7 @@
 
             //------------------------------ BARCHART SALES PER CATEGORY --------------------------------
             
-                    const ctx = document.getElementById('BarChartSalesPerCategory').getContext('2d');
+                    const ctxBSC = document.getElementById('BarChartSalesPerCategory').getContext('2d');
                     
                     // Hitung Sales per Category
                     function processSalesData(data) {
@@ -251,8 +259,8 @@
                     }
 
                     // Fungsi untuk membuat chart berdasarkan data yang telah diproses
-                    function createChart(data) {
-                        new Chart(ctx, {
+                    function createBarChartSalesCategory(data) {
+                        new Chart(ctxBSC, {
                             type: 'bar',
                             data: {
                                 labels: Object.keys(data), // Label adalah kategori
@@ -279,8 +287,8 @@
                     fetchData(DataUrl)
                         .then(data => {
                             const filteredData = applyFilters(data);
-                            const processedData = processSalesData(filteredData);
-                            createChart(processedData);
+                            const processedDataBarChart = processSalesData(filteredData);
+                            createBarChartSalesCategory(processedDataBarChart);
                         });
                     }
 
@@ -318,6 +326,104 @@
                     config
                 );
 
+           //------------------------------ LINE CHART YoY PERFORMANCE --------------------------------
+           const preprocessData = (data) => {
+                const result = {};
+
+                data.forEach(order => {
+                    const date = new Date(order["Order Date"]);
+                    const year = date.getFullYear();
+                    const month = date.toLocaleString('default', { month: 'long' });
+
+                    if (!result[year]) {
+                        result[year] = {};
+                    }
+
+                    if (!result[year][month]) {
+                        result[year][month] = { sales: 0, profit: 0 };
+                    }
+
+                    result[year][month].sales += parseFloat(order.Sales.replace(/[^0-9.-]+/g, ""));
+                    result[year][month].profit += parseFloat(order.Profit.replace(/[^0-9.-]+/g, ""));
+                });
+
+                const sortedData = [];
+
+                Object.keys(result).sort().forEach(year => {
+                    Object.keys(result[year]).sort((a, b) => new Date(`1 ${a} ${year}`) - new Date(`1 ${b} ${year}`)).forEach(month => {
+                        sortedData.push({
+                            monthYear: `${month} ${year}`,
+                            sales: result[year][month].sales,
+                            profit: result[year][month].profit
+                        });
+                    });
+                });
+
+                return sortedData;
+            };
+
+            // Konfigurasi line chart
+            const createLineChart = (processedData) => {
+                const labelsMonthYear = processedData.map(data => data.monthYear);
+                const sales = processedData.map(data => data.sales);
+                const profits = processedData.map(data => data.profit);
+
+                const ctxLSP = document.getElementById('LineChartSalesProfit').getContext('2d');
+                new Chart(ctxLSP, {
+                    type: 'line',
+                    data: {
+                        labels: labelsMonthYear,
+                        datasets: [
+                            {
+                                label: 'Sales',
+                                data: sales,
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 2,
+                                fill: false,
+                                tension: 0.2,
+                            },
+                            {
+                                label: 'Profit',
+                                data: profits,
+                                borderColor: 'rgba(153, 102, 255, 1)',
+                                borderWidth: 2,
+                                fill: false,
+                                tension: 0.2,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: 'Month/Year'
+                                }
+                            },
+                            y: {
+                                display: true,
+                                title: {
+                                    display: true,
+                                    text: 'Amount ($)'
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            // Fetching data dari json
+            fetch(DataUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const processedDataLineChart = preprocessData(data);
+                    createLineChart(processedDataLineChart);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+
+             
 
         //------------------------------------------------ EVENT LISTENER ------------------------------------------------
         // Tambah event listeners ke dropdowns
@@ -336,3 +442,5 @@
             postDataCard();
         }); 
 </script>
+
+

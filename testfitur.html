@@ -1,288 +1,114 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="html/css/style.css">
+    <title>Sales and Profit Line Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    
 </head>
-  
 <body>
-    <section>
-        <div class="container">
-            <!--Header-->
-            <div class="topnav header">
-                <a class="topnav-logo"><img class="image-responsive" src="html/assets/logo-header-resized-120px.png" alt="Logo Perusahaan"></a>
-                <a class="topnav-special">
-                    <div>
-                        <div class="kotak">
-                            <h1 class="font-weight-bold">
-                                Superstore Year Sales Performance Overview
-                            </h1>
-                        </div>
-                        <div>
-                            <img class="image-responsive" src="html/assets/Rectangle 205.png" alt="garis">
-                        </div>
-                    </div>
-                </a>
-                <a class="topnav-button-position topnav-a topnav-hover" href="#news"> Monthly Sales</a>
-                <a class="topnav-button-position topnav-a-active topnav-hover" href="#home">Yearly Sales</a>
-            </div>
-
-            <!--FILTER-->
-            <div class="sections">
-                 <!--BUTTON DOWNLOAD PDF-->
-                <div class="#">
-                    <button class="button">Download PDF</button>
-                </div>
-
-                 <!--DROPDOWN STATE-->
-                <div class="select">
-                    <select name="state" id="stateSelect">
-                        <option value="">All Categories</option>
-                    </select>
-                </div>
-                
-                 <!--DROPDOWN CATEGORY-->
-                <div class="select">
-                    <select name="category" id="categorySelect">
-                        <option value="">All Categories</option>
-                    </select>
-                </div>
-
-                 <!--SEGMENT-->
-                <div class="select">
-                    <select name="segment" id="segmentSelect">
-                        <option value="">All Categories</option>
-                    </select>
-                </div>
-
-                <div class="slider-container">
-                    <div class="slider-items">
-                        <p>Year</p>
-                    </div>
-                    <div class="slider-items slider-width">
-                        <input type="range" min="1" max="100" value="50" class="slider" id="#">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!--SCORE CARD-->
-        <div class="skorcard"> 
-            <div class="cards">
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-name">Total Order</div>
-                        <div class="number" id="cardOrder"></div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-name">Sales</div>
-                        <div class="number" id="cardSales"></div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-name">Profit</div>
-                        <div class="number" id="cardProfit"></div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-name">Profit Ratio</div>
-                        <div class="number" id="cardProfitRatio"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="chartContainer">
-            <div class="left">
-                <h2>Sales by Category</h2>
-                <div><canvas id="BarChartSalesPerCategory"></canvas></div>
-            </div>
-
-            <div class="right">
-                <h2>Dummy</h2>
-                <div><canvas id="DummyChart"></canvas></div>
-            </div>
-    </section>
-    
+    <canvas id="salesProfitChart" width="400" height="200"></canvas>
+    <script src="script.js"></script>
 </body>
-  
 </html>
-
-
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-    const DataUrl = 'http://localhost:3000/data';
-    
-    // Ambil data dari JSON
-    function fetchData(url) {
-        return fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
-            });
-    }
+  const DataUrl = 'http://localhost:3000/data';
 
-    // Hitung Sales per Category
-    function processSalesData(data) {
-        const aggregatedData = {};
-        data.forEach(row => {
-            const category = row.Category;
-            const sales = parseFloat(row.Sales.replace(/\$/g, '').replace(/,/g, ''));
-            if (aggregatedData[category]) {
-                aggregatedData[category] += sales;
-            } else {
-                aggregatedData[category] = sales;
-            }
-        });
-        return aggregatedData;
-    }
+// Function to preprocess the data
+const preprocessData = (data) => {
+    const result = {};
 
-    // Isi option pada dropdown
-    function isiDropdownFilter(selectElement, items) {
-        if (Array.isArray(items)) {
-            items.forEach(function(item) {
-                const option = document.createElement('option');
-                option.value = item;
-                option.textContent = item;
-                selectElement.appendChild(option);
-            });
-        } else {
-            console.error('Expected an array but got:', items);
+    data.forEach(order => {
+        const date = new Date(order["Order Date"]);
+        const year = date.getFullYear();
+        const month = date.toLocaleString('default', { month: 'long' });
+
+        if (!result[year]) {
+            result[year] = {};
         }
-    }
 
-    // Mengisi dropdown dengan nilai unik dari data
-    function populateDropdowns(data) {
-        const stateSelect = document.getElementById('stateSelect');
-        const categorySelect = document.getElementById('categorySelect');
-        const segmentSelect = document.getElementById('segmentSelect');
+        if (!result[year][month]) {
+            result[year][month] = { sales: 0, profit: 0 };
+        }
 
-        const states = [...new Set(data.map(row => row.State))];
-        const categories = [...new Set(data.map(row => row.Category))];
-        const segments = [...new Set(data.map(row => row.Segment))];
+        result[year][month].sales += parseFloat(order.Sales.replace(/[^0-9.-]+/g, ""));
+        result[year][month].profit += parseFloat(order.Profit.replace(/[^0-9.-]+/g, ""));
+    });
 
-        isiDropdownFilter(stateSelect, states);
-        isiDropdownFilter(categorySelect, categories);
-        isiDropdownFilter(segmentSelect, segments);
-    }
+    const sortedData = [];
 
-    // Ambil value Filter
-    function applyFilters(data) {
-        const selectedState = document.getElementById('stateSelect').value;
-        const selectedCategory = document.getElementById('categorySelect').value;
-        const selectedSegment = document.getElementById('segmentSelect').value;
-
-        return data.filter(row => {
-            return (!selectedState || row.State === selectedState) &&
-                (!selectedCategory || row.Category === selectedCategory) &&
-                (!selectedSegment || row.Segment === selectedSegment);
+    Object.keys(result).sort().forEach(year => {
+        Object.keys(result[year]).sort((a, b) => new Date(`1 ${a} ${year}`) - new Date(`1 ${b} ${year}`)).forEach(month => {
+            sortedData.push({
+                monthYear: `${month} ${year}`,
+                sales: result[year][month].sales,
+                profit: result[year][month].profit
+            });
         });
-    }
+    });
 
-    // Hitung Total Sales
-    function calculateTotalSales(data) {
-        let totalSales = 0;
-        data.forEach(row => {
-            const sales = parseFloat(row.Sales.replace(/\$/g, '').replace(/,/g, ''));
-            totalSales += sales;
-        });
-        return totalSales;
-    }
+    return sortedData;
+};
 
-    // Hitung Total Profit
-    function calculateTotalProfit(data) {
-        let totalProfit = 0;
-        data.forEach(row => {
-            const profit = parseFloat(row.Profit.replace(/\$/g, '').replace(/,/g, ''));
-            totalProfit += profit;
-        });
-        return totalProfit;
-    }
+// Function to create the chart
+const createChart = (processedData) => {
+    const labels = processedData.map(data => data.monthYear);
+    const sales = processedData.map(data => data.sales);
+    const profits = processedData.map(data => data.profit);
 
-    // Post To Card
-    function postDataCard() {
-        fetchData(DataUrl).then(data => {
-            const filteredData = applyFilters(data);
-
-            // Total Sales
-            const totalSales = calculateTotalSales(filteredData);
-            const formattedTotalSales = totalSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            document.getElementById('cardSales').innerText = `$ ${formattedTotalSales}`;
-
-            // Total Profit
-            const totalProfit = calculateTotalProfit(filteredData);
-            const formattedTotalProfit = totalProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            document.getElementById('cardProfit').innerText = `$ ${formattedTotalProfit}`;
-
-            // Profit Ratio
-            const profitRatio = (totalProfit / totalSales) * 100;
-            const formattedTotalProfitRatio = Math.round(profitRatio).toLocaleString('en-US');
-            document.getElementById('cardProfitRatio').innerText = `${formattedTotalProfitRatio} %`;
-
-            // Update chart with filtered data
-            updateChart(filteredData);
-        });
-    }
-
-    // Fungsi untuk membuat chart
-    let myChart;
-    function createChart(data) {
-        const ctx = document.getElementById('BarChartSalesPerCategory').getContext('2d');
-        myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: Object.keys(data),
-                datasets: [{
-                    label: 'Total Sales by Category',
-                    data: Object.values(data),
-                    backgroundColor: 'rgba(75, 192, 192, 0.5)',
+    const ctx = document.getElementById('salesProfitChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Sales',
+                    data: sales,
                     borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.2,
+                },
+                {
+                    label: 'Profit',
+                    data: profits,
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.2,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Month/Year'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Amount ($)'
                     }
                 }
             }
-        });
-    }
-
-    // Fungsi untuk memperbarui chart
-    function updateChart(data) {
-        const processedData = processSalesData(data);
-        myChart.data.labels = Object.keys(processedData);
-        myChart.data.datasets[0].data = Object.values(processedData);
-        myChart.update();
-    }
-
-    // Event listeners untuk dropdowns
-    document.getElementById('stateSelect').addEventListener('change', postDataCard);
-    document.getElementById('categorySelect').addEventListener('change', postDataCard);
-    document.getElementById('segmentSelect').addEventListener('change', postDataCard);
-
-    // Fetch data, populate dropdowns, dan lakukan kalkulasi awal
-    fetchData(DataUrl).then(data => {
-        populateDropdowns(data);
-        postDataCard();
+        }
     });
-});
+};
+
+// Fetching data from the URL
+fetch(DataUrl)
+    .then(response => response.json())
+    .then(data => {
+        const processedData = preprocessData(data);
+        createChart(processedData);
+    })
+    .catch(error => console.error('Error fetching data:', error));
 
 </script>
