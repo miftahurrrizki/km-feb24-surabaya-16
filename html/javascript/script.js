@@ -130,39 +130,50 @@ function postDataCard() {
                return aggregatedData;
            }
 
-           // Fungsi untuk membuat chart berdasarkan data yang telah diproses
+           let BarChart = null;
+
            function createBarChartSalesCategory(data) {
-               new Chart(ctxBSC, {
-                   type: 'bar',
-                   data: {
-                       labels: Object.keys(data), // Label adalah kategori
-                       datasets: [{
-                           label: 'Total Sales by Category',
-                           data: Object.values(data), // Data adalah total penjualan
-                           borderWidth: 1
-                       }]
-                   },
-                   options: {
-                       responsive: true, 
-                       maintainAspectRatio: false,
-                       scales: {
-                           y: {
-                               beginAtZero: true
-                           }
-                       }
-                   }
-               });
-           }
+           let ctxBSC = document.getElementById("BarChartSalesPerCategory").getContext("2d");
+            if (BarChart != null) {
+                    BarChart.data.labels = Object.keys(data); // Perbarui labels
+                    BarChart.data.datasets.forEach((dataset) => {
+                    dataset.data = Object.values(data); // Perbarui data
+                });
+                return BarChart.update();
+            }
+            BarChart = new Chart(ctxBSC, {
+                type: "bar",
+                data: {
+                    labels: Object.keys(data), // Label adalah kategori
+                    datasets: [
+                        {
+                            label: "Total Sales by Category",
+                            data: Object.values(data), // Data adalah total penjualan
+                            borderWidth: 1,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                },
+            });
+            }
    
            // Ambil data penjualan dari server, proses, dan buat chart
            function filterBarChart (){
-           fetchData(DataUrl)
-               .then(data => {
-                   const filteredData = applyFilters(data);
-                   const processedDataBarChart = processSalesData(filteredData);
-                   createBarChartSalesCategory(processedDataBarChart);
-               });
-           }
+            fetchData(DataUrl)
+                .then(data => {
+                    const filteredData = applyFilters(data);
+                    const processedDataBarChart = processSalesData(filteredData);
+                    createBarChartSalesCategory(processedDataBarChart);
+                });
+            }
 
     //------------------------------ DUMMY BARCHART SALES PER CATEGORY --------------------------------               
        const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
