@@ -1,10 +1,16 @@
 h1, h2, h3, h4, h5, h6 {
-    font-family: Arial, Helvetica, sans-serif;
-    
+  font-family: 'Roboto', sans-serif;
+  font-size: 26px;
 }
-
+.judul{
+  font-size: 18px !important;
+}
+b{
+  font-family: 'Roboto', sans-serif;
+  font-size: 17px;
+}
 body{
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 12;
 }
 
@@ -21,11 +27,21 @@ body{
   width: 100%;
   height: auto;
 }
-.topnav {
+.topnav-container {
     background-color: white;
     overflow: hidden;
 
   }
+
+.navbar-nav .nav-link:hover {
+    background-color: transparent !important;
+    color: inherit !important;
+    pointer-events: none;
+}
+
+.nav-text-disabled .nav-link_judul:hover  {
+  color: black !important;
+}
   
   /* Style the links inside the navigation bar */
   .topnav-a {
@@ -41,7 +57,7 @@ body{
     float: left;
     color: black;
     text-align: left;
-    padding: 14px 16px;
+    padding: 25px 20px;
     text-decoration: none;
     font-size: 17px;
   }
@@ -84,14 +100,14 @@ body{
   }
 
 /*========================================================= CONTAINER ========================================*/
-.container {
+.header-container {
   display:flex;
   flex-direction: column;
   overflow: hidden;
   padding:0 10px;
   margin-bottom: 2em;
 }
-.header {
+.header-cust {
   padding: 10px;
   text-align: center;
 }
@@ -116,7 +132,7 @@ body{
   width: 100%;
   height: auto;
   text-align: center;
-  padding: 14px 30px;
+  padding: 10px 30px;
   text-decoration: none;
   font-size: 12px;
   background-color: rgb(230, 230, 230);
@@ -229,7 +245,7 @@ select::-ms-expand {
 /*========================================================= SLIDER ========================================*/
 .skorcard{
   position: flex;
-  width: 97%;
+  width: 100%;
   left: 0;
 }
 .cards{
@@ -240,7 +256,7 @@ select::-ms-expand {
   grid-gap: 20px; /* Mengurangi jarak antara kartu */
   background: #f3f3f3;
 }
-.cards .card{
+.cards .tampilan-card{
   padding: 20px;
   display: flex;
   align-items: center;
@@ -254,16 +270,17 @@ select::-ms-expand {
 }
 .card-name{
   font-size: 20px;
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 .number{
   font-size: 20px;
   font-weight: 200;
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
 }
 
 
-/*========================================================= SLIDER ========================================*/
+/*=========================================================  ========================================*/
 .chartContainer{
   display: flex;
   flex: 1;
@@ -271,9 +288,15 @@ select::-ms-expand {
 .left {
   padding: 20px;
   flex: 1;
-  margin-bottom: 10px;
+}
+.middle {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 .right {
+  padding: 20px;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -282,6 +305,58 @@ select::-ms-expand {
 canvas {
   width: 100%;
   height: auto;
+}
+
+.line-chart{
+  width: 100%;
+  margin-left: 20px;
+}
+
+h2 {
+  margin-top: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px auto;
+  border: 1px solid #ddd;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+/*---------------------------------MODAL-----------------------------------*/
+.containerModal {
+  margin: 20px;
+}
+.h1-modal {
+  text-align: center;
+}
+.modal-dialog {
+  max-width: 90%; /* Set your desired width here */
+}
+#dataTable {
+  width: 100% !important; /* Ensure the table takes full width of the modal */
 }
 
 @media screen and (max-width: 768px) {
@@ -295,3 +370,4 @@ canvas {
     display: none;
   }
 }
+

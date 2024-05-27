@@ -1,446 +1,239 @@
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="html/css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    
-</head>
-  
-<body>
-    <section>
-        <div class="container">
-            <!--Header-->
-            <div class="topnav header">
-                <a class="topnav-logo"><img class="image-responsive" src="html/assets/logo-header-resized-120px.png" alt="Logo Perusahaan"></a>
-                <a class="topnav-special">
-                    <div>
-                        <div class="kotak">
-                            <h1 class="font-weight-bold">
-                                Superstore Year Sales Performance Overview
-                            </h1>
-                        </div>
-                        <div>
-                            <img class="image-responsive" src="html/assets/Rectangle 205.png" alt="garis">
-                        </div>
-                    </div>
-                </a>
-                <a class="topnav-button-position topnav-a topnav-hover" href="#news"> Monthly Sales</a>
-                <a class="topnav-button-position topnav-a-active topnav-hover" href="#home">Yearly Sales</a>
-            </div>
-
-            <!--FILTER-->
-            <div class="sections">
-                 <!--BUTTON DOWNLOAD PDF-->
-                <div class="#">
-                    <button class="button">Download PDF</button>
-                </div>
-
-                 <!--DROPDOWN STATE-->
-                <div class="select">
-                    <select name="state" id="stateSelect">
-                        <option value="">All State</option>
-                    </select>
-                </div>
-                
-                 <!--DROPDOWN CATEGORY-->
-                <div class="select">
-                    <select name="category" id="categorySelect">
-                        <option value="">All Categories</option>
-                    </select>
-                </div>
-
-                 <!--SEGMENT-->
-                <div class="select">
-                    <select name="segment" id="segmentSelect">
-                        <option value="">All Segment</option>
-                    </select>
-                </div>
-
-                <div class="slider-container">
-                    <div class="slider-items">
-                        <p>Year</p>
-                    </div>
-                    <div class="slider-items slider-width">
-                        <input type="range" min="1" max="100" value="50" class="slider" id="#">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!--SCORE CARD-->
-        <div class="skorcard"> 
-            <div class="cards">
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-name">Total Order</div>
-                        <div class="number" id="cardOrder"></div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-name">Sales</div>
-                        <div class="number" id="cardSales"></div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-name">Profit</div>
-                        <div class="number" id="cardProfit"></div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-name">Profit Ratio</div>
-                        <div class="number" id="cardProfitRatio"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="./css/style.css">
         
-        <!-- CHART ROW 1 -->
-        <div class="chartContainer">
-            <div class="left">
-                <h2>Sales by Category</h2>
-                <div><canvas id="BarChartSalesPerCategory"></canvas></div>
-            </div>
 
-            <div class="right">
-                <h2>Dummy</h2>
-                <div><canvas id="DummyChart"></canvas></div>
-            </div>
-        </div>
 
-        <!-- CHART ROW 2 -->
-        <div>
-            <h2>YoY Sales Performance</h2>
-            <div><canvas id="LineChartSalesProfit"width="400" height="100"></canvas></div>
-        </div>
-    </section>
+    </head>
     
-</body>
+    <body>
+        <section>
+            <div class="header-container">
+                <!--Header-->
+                <div class="topnav-container header-cust">
+                    <a class="topnav-logo navbar-nav nav-link"><img class="image-responsive" src="./assets/logo-header-resized-120px.png" alt="Logo Perusahaan"></a>
+                    <a class="topnav-special navbar-nav nav-link nav-text-disabled nav-link_judul">
+                        <div class="navbar-nav nav-link">
+                            <div class="kotak navbar-nav nav-link">
+                                <h1 class="font-weight-bold" >
+                                    Superstore Year Sales Performance Overview
+                                </h1>
+                            </div>
+                            <div>
+                                <img class="image-responsive" src="./assets/Rectangle 205.png" alt="garis">
+                            </div>
+                        </div>
+                    </a>
+                    <a class="topnav-button-position topnav-a topnav-hover navbar-nav nav-link" href="#news"> Monthly Sales</a>
+                    <a class="topnav-button-position topnav-a-active topnav-hover navbar-nav nav-link" href="#home">Yearly Sales</a>
+                </div>
+
+                <!--FILTER-->
+                <div class="sections">
+                    <!--BUTTON DOWNLOAD PDF-->
+                    <div class="#">
+                        <button class="button">Download PDF</button>
+                    </div>
+                    <!--SHOW RAW DATA-->
+                    <div class="#">
+                        <button type="button" class="button" data-toggle="modal" data-target="#dataTableModal">Show Data</button>
+                    </div>
+
+                    <!--DROPDOWN STATE-->
+                    <div class="select">
+                        <select name="state" id="stateSelect">
+                            <option value="">All State</option>
+                        </select>
+                    </div>
+                    
+                    <!--DROPDOWN CATEGORY-->
+                    <div class="select">
+                        <select name="category" id="categorySelect">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+
+                    <!--SEGMENT-->
+                    <div class="select">
+                        <select name="segment" id="segmentSelect">
+                            <option value="">All Segment</option>
+                        </select>
+                    </div>
+
+                    <!--<div class="slider-container">
+                        <div class="slider-items">
+                            <p>Year</p>
+                        </div>
+                        <div class="slider-items slider-width">
+                            <input type="range" min="1" max="100" value="50" class="slider" id="#">
+                        </div>
+                    </div>-->
+                </div>
+            </div>
+
+            <!--SCORE CARD-->
+            <div class="skorcard"> 
+                <div class="cards">
+                    <div class="tampilan-card">
+                        <div class="card-content ">
+                            <div class="card-name "><b>Total Order</b></div>
+                            <div class="number" id="cardOrder"></div>
+                        </div>
+                    </div>
+                    <div class="tampilan-card">
+                        <div class="card-content">
+                            <div class="card-name"><b>Sales</b></div>
+                            <div class="number" id="cardSales"></div>
+                        </div>
+                    </div>
+                    <div class="tampilan-card">
+                        <div class="card-content">
+                            <div class="card-name"><b>Profit</b></div>
+                            <div class="number" id="cardProfit"></div>
+                        </div>
+                    </div>
+                    <div class="tampilan-card">
+                        <div class="card-content ">
+                            <div class="card-name">Profit Ratio</b></div>
+                            <div class="number" id="cardProfitRatio"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CHART ROW 1 -->
+            <div class="chartContainer">
+                <div class="left">
+                    <h2 class="font-weight-bold judul">Sales by Category</h2>
+                    <div><canvas id="BarChartSalesPerCategory"></canvas></div>
+                </div>
+
+                <div class="right">
+                    <h2 class="font-weight-bold judul">Dummy</h2>
+                    <div><canvas id="DummyChart"></canvas></div>
+                </div>
+            </div>
+
+            <!-- CHART ROW 2 -->
+            <div class="line-chart">
+                <h2 class="font-weight-bold judul">YoY Sales Performance</h2>
+                <div><canvas id="LineChartSalesProfit"width="400" height="100"></canvas></div>
+            </div>
+        </section>
+        
+
+    <!-- Modal -->
+    <div class="modal fade" id="dataTableModal" tabindex="-1" role="dialog" aria-labelledby="dataTableModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dataTableModalLabel">Data Table</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table id="dataTable" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Order Date</th>
+                                <th>Ship Date</th>
+                                <th>Ship Mode</th>
+                                <th>Customer ID</th>
+                                <th>Customer Name</th>
+                                <th>Segment</th>
+                                <th>Country</th>
+                                <th>City</th>
+                                <th>State</th>
+                                <th>Postal Code</th>
+                                <th>Region</th>
+                                <th>Product ID</th>
+                                <th>Category</th>
+                                <th>Sub-Category</th>
+                                <th>Product Name</th>
+                                <th>Sales</th>
+                                <th>Quantity</th>
+                                <th>Discount</th>
+                                <th>Profit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </body>
   
 </html>
 
 
+<script src="./javascript/script.js">  </script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+
 <script>
-     //------------------------------ GENERAL FUNCTION ----------------------------------
-    const DataUrl = 'http://localhost:3000/data';
-            
-            // Ambil data dari json
-            function fetchData(url) {
-                return fetch(url)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .catch(error => {
-                        console.error('There was a problem with the fetch operation:', error);
-                    });
-            }
-    
+      $(document).ready(function() {
+        let dataTableInitialized = false;
 
-        //------------------------------ SCORE CARD FUNCTION ----------------------------------
-        function isiDropdownFilter(selectElement, items) {
-            if (Array.isArray(items)) {
-                items.forEach(function(item) {
-                    const option = document.createElement('option');
-                    option.value = item;
-                    option.textContent = item;
-                    selectElement.appendChild(option);
-                });
-            } else {
-                console.error('Expected an array but got:', items);
-            }
-        }
+         function initializeDataTable(data) {
+             $('#dataTable').DataTable({
+                 data: data,
+                 columns: [
+                     { data: 'Order ID' },
+                     { data: 'Order Date' },
+                     { data: 'Ship Date' },
+                     { data: 'Ship Mode' },
+                     { data: 'Customer ID' },
+                     { data: 'Customer Name' },
+                     { data: 'Segment' },
+                     { data: 'Country' },
+                     { data: 'City' },
+                     { data: 'State' },
+                     { data: 'Postal Code' },
+                     { data: 'Region' },
+                     { data: 'Product ID' },
+                     { data: 'Category' },
+                     { data: 'Sub-Category' },
+                     { data: 'Product Name' },
+                     { data: 'Sales' },
+                     { data: 'Quantity' },
+                     { data: 'Discount' },
+                     { data: 'Profit' }
+                 ],
+                 pageLength: 5, 
+                 lengthMenu: [5, 10, 15, 30], 
+                 responsive: true,
+                 scrollX: true // Enable horizontal scrolling
+             });
+             dataTableInitialized = true;
+         }
 
-        // Populasi dropdowns dengan nilai unik dari data
-        function populateDropdowns(data) {
-            const states = [...new Set(data.map(row => row.State))];
-            const categories = [...new Set(data.map(row => row.Category))];
-            const segments = [...new Set(data.map(row => row.Segment))];
-
-            isiDropdownFilter(document.getElementById('stateSelect'), states);
-            isiDropdownFilter(document.getElementById('categorySelect'), categories);
-            isiDropdownFilter(document.getElementById('segmentSelect'), segments);
-        }
-
-        // Ambil value Filter
-        function applyFilters(data) {
-            const selectedState = document.getElementById('stateSelect').value;
-            const selectedCategory = document.getElementById('categorySelect').value;
-            const selectedSegment = document.getElementById('segmentSelect').value;
-
-            return data.filter(row => {
-                return (!selectedState || row.State === selectedState) &&
-                    (!selectedCategory || row.Category === selectedCategory) &&
-                    (!selectedSegment || row.Segment === selectedSegment);
-            });
-        }
-
-        // Hitung Total Sales
-        function calculateTotalSales(data) {
-            let totalSales = 0;
-            data.forEach(row => {
-                const sales = parseFloat(row.Sales.replace(/\$/g, '').replace(/,/g, ''));
-                totalSales += sales;
-            });
-            return totalSales;
-        }
-
-        // Hitung Total Profit
-        function calculateTotalProfit(data) {
-            let totalProfit = 0;
-            data.forEach(row => {
-                const profit = parseFloat(row.Profit.replace(/\$/g, '').replace(/,/g, ''));
-                totalProfit += profit;
-            });
-            return totalProfit;
-        }
-
-         // Hitung Total Orders
-        function calculateTotalOrders(data) {
-            return data.length;
-        }
-
-        // Post To Card
-        function postDataCard() {
+         // Fetch data and initialize DataTable when modal is shown
+        
+         $('#dataTableModal').on('shown.bs.modal', function () {
+        if (!dataTableInitialized) { 
             fetchData(DataUrl).then(data => {
-                const filteredData = applyFilters(data);
-
-                const totalOrder = calculateTotalOrders(filteredData);
-                const formattedTotalOrder = totalOrder.toLocaleString('en-US');
-                document.getElementById('cardOrder').innerText = `${formattedTotalOrder}`;
-
-                // Total Sales
-                const totalSales = calculateTotalSales(filteredData);
-                const formattedTotalSales = totalSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                document.getElementById('cardSales').innerText = `$ ${formattedTotalSales}`;
-
-                // Total Profit
-                const totalProfit = calculateTotalProfit(filteredData);
-                const formattedTotalProfit = totalProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                document.getElementById('cardProfit').innerText = `$ ${formattedTotalProfit}`;
-
-                // Profit Ratio
-                const profitRatio = (totalProfit / totalSales) * 100;
-                const formattedTotalProfitRatio = Math.round(profitRatio).toLocaleString('en-US');
-                document.getElementById('cardProfitRatio').innerText = `${formattedTotalProfitRatio} %`;
+                initializeDataTable(data);
+            });
+        } else {
+            $('#dataTable').DataTable().clear().draw();
+            fetchData(DataUrl).then(data => {
+                $('#dataTable').DataTable().rows.add(data).draw();
             });
         }
-
-
-            //------------------------------ BARCHART SALES PER CATEGORY --------------------------------
-            
-                    const ctxBSC = document.getElementById('BarChartSalesPerCategory').getContext('2d');
-                    
-                    // Hitung Sales per Category
-                    function processSalesData(data) {
-                        const aggregatedData = {};
-            
-                        data.forEach(row => {
-                            const category = row.Category;
-                            const sales = parseFloat(row.Sales.replace(/\$/g, '').replace(/,/g, ''));
-            
-                            // check unique category terus jumlahkan salesnya
-                            if (aggregatedData[category]) {
-                                aggregatedData[category] += sales;
-                            } else {
-                                // Jika kategori belum ada, tambahkan kategori baru
-                                aggregatedData[category] = sales;
-                            }
-                        });
-            
-                        return aggregatedData;
-                    }
-
-                    // Fungsi untuk membuat chart berdasarkan data yang telah diproses
-                    function createBarChartSalesCategory(data) {
-                        new Chart(ctxBSC, {
-                            type: 'bar',
-                            data: {
-                                labels: Object.keys(data), // Label adalah kategori
-                                datasets: [{
-                                    label: 'Total Sales by Category',
-                                    data: Object.values(data), // Data adalah total penjualan
-                                    borderWidth: 1
-                                }]
-                            },
-                            options: {
-                                responsive: true, 
-                                maintainAspectRatio: false,
-                                scales: {
-                                    y: {
-                                        beginAtZero: true
-                                    }
-                                }
-                            }
-                        });
-                    }
-            
-                    // Ambil data penjualan dari server, proses, dan buat chart
-                    function filterBarChart (){
-                    fetchData(DataUrl)
-                        .then(data => {
-                            const filteredData = applyFilters(data);
-                            const processedDataBarChart = processSalesData(filteredData);
-                            createBarChartSalesCategory(processedDataBarChart);
-                        });
-                    }
-
-             //------------------------------ DUMMY BARCHART SALES PER CATEGORY --------------------------------               
-                const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-                const data = {
-                    labels: labels,
-                    datasets: [{
-                        label: 'My First Dataset',
-                        data: [65, 59, 80, 81, 56, 55, 40],
-                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                };
-
-                // Konfigurasi chart
-                const config = {
-                    type: 'bar',
-                    data: data,
-                    options: {
-                        responsive: true, // Aktifkan responsif
-                        maintainAspectRatio: false, // Buat chart tidak mempertahankan rasio aspek
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                };
-
-                // Membuat chart
-                var myChart = new Chart(
-                    document.getElementById('DummyChart'),
-                    config
-                );
-
-           //------------------------------ LINE CHART YoY PERFORMANCE --------------------------------
-           const preprocessData = (data) => {
-                const result = {};
-
-                data.forEach(order => {
-                    const date = new Date(order["Order Date"]);
-                    const year = date.getFullYear();
-                    const month = date.toLocaleString('default', { month: 'long' });
-
-                    if (!result[year]) {
-                        result[year] = {};
-                    }
-
-                    if (!result[year][month]) {
-                        result[year][month] = { sales: 0, profit: 0 };
-                    }
-
-                    result[year][month].sales += parseFloat(order.Sales.replace(/[^0-9.-]+/g, ""));
-                    result[year][month].profit += parseFloat(order.Profit.replace(/[^0-9.-]+/g, ""));
-                });
-
-                const sortedData = [];
-
-                Object.keys(result).sort().forEach(year => {
-                    Object.keys(result[year]).sort((a, b) => new Date(`1 ${a} ${year}`) - new Date(`1 ${b} ${year}`)).forEach(month => {
-                        sortedData.push({
-                            monthYear: `${month} ${year}`,
-                            sales: result[year][month].sales,
-                            profit: result[year][month].profit
-                        });
-                    });
-                });
-
-                return sortedData;
-            };
-
-            // Konfigurasi line chart
-            const createLineChart = (processedData) => {
-                const labelsMonthYear = processedData.map(data => data.monthYear);
-                const sales = processedData.map(data => data.sales);
-                const profits = processedData.map(data => data.profit);
-
-                const ctxLSP = document.getElementById('LineChartSalesProfit').getContext('2d');
-                new Chart(ctxLSP, {
-                    type: 'line',
-                    data: {
-                        labels: labelsMonthYear,
-                        datasets: [
-                            {
-                                label: 'Sales',
-                                data: sales,
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 2,
-                                fill: false,
-                                tension: 0.2,
-                            },
-                            {
-                                label: 'Profit',
-                                data: profits,
-                                borderColor: 'rgba(153, 102, 255, 1)',
-                                borderWidth: 2,
-                                fill: false,
-                                tension: 0.2,
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            x: {
-                                display: true,
-                                title: {
-                                    display: true,
-                                    text: 'Month/Year'
-                                }
-                            },
-                            y: {
-                                display: true,
-                                title: {
-                                    display: true,
-                                    text: 'Amount ($)'
-                                }
-                            }
-                        }
-                    }
-                });
-            };
-
-            // Fetching data dari json
-            fetch(DataUrl)
-                .then(response => response.json())
-                .then(data => {
-                    const processedDataLineChart = preprocessData(data);
-                    createLineChart(processedDataLineChart);
-                })
-                .catch(error => console.error('Error fetching data:', error));
-
-             
-
-        //------------------------------------------------ EVENT LISTENER ------------------------------------------------
-        // Tambah event listeners ke dropdowns
-        document.getElementById('stateSelect').addEventListener('change', postDataCard);
-        document.getElementById('categorySelect').addEventListener('change', postDataCard);
-        document.getElementById('segmentSelect').addEventListener('change', postDataCard);
-
-        document.getElementById('stateSelect').addEventListener('change', filterBarChart);
-        document.getElementById('categorySelect').addEventListener('change', filterBarChart);
-        document.getElementById('segmentSelect').addEventListener('change', filterBarChart);
-
-        // Fetch data, populate dropdowns, dan lakukan kalkulasi awal
-        fetchData(DataUrl).then(data => {
-            populateDropdowns(data);
-            filterBarChart();
-            postDataCard();
-        }); 
+    });
+     });
 </script>
-
-
