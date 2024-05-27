@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="html/css/style.css">
-
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts/dist/apexcharts.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
   
 <body>
@@ -128,16 +128,35 @@
         <!-- CHART ROW 3 -->
         <div class="chartContainer">
             <div class="left">
-                <h2 class="font-weight-bold">Sales by Category</h2>
-                <div><canvas id="DummyChart1"></canvas></div>
+                <h2 class="font-weight-bold">Top Performanced Salesman</h2>
+                <table id="salesman-table">
+                    <thead>
+                        <tr>
+                            <th>Salesman</th>
+                            <th>Total Sales
+                                <button id="sortAscBtn">↓</button>
+                                <button id="sortDescBtn">↑</button></th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesman-body">
+                        <!-- Table content will be added dynamically using JavaScript -->
+                    </tbody>
+                </table>
+            
+                <div class="pagination">
+                        <button id="prevBtn" disabled>&laquo; Previous</button>
+                        <span id="pageInfo">Page 1</span>
+                        <button id="nextBtn">Next &raquo;</button>
+                </div>
             </div>
+
             <div class="left">
-                <h2 class="font-weight-bold">CENTER</h2>
-                <div><canvas id="DummyChart2"></canvas></div>
+                <h2 class="font-weight-bold">Sales per Region</h2>
+                <div id="chart"></div>
             </div>
             <div class="right">
                 <h2 class="font-weight-bold">Top 5 Product Sold based on Quantity Sales</h2>
-                <div><canvas id="DummyChart3"></canvas></div>
+                <div><canvas id="VerticalBarchartProductSales" height="300"></canvas></div>
             </div>
         </div>
     </section>
@@ -407,14 +426,6 @@
                     document.getElementById('DummyChart'),
                     config
                 );
-                var myChart1 = new Chart(
-                    document.getElementById('DummyChart1'),
-                    config
-                );
-                var myChart2 = new Chart(
-                    document.getElementById('DummyChart2'),
-                    config
-                );
            //------------------------------ LINE CHART YoY PERFORMANCE --------------------------------
            const preprocessData = (data) => {
                 const result = {};
@@ -523,9 +534,182 @@
                 })
                 .catch(error => console.error('Error fetching data:', error));
         }
-</script>    
+</script>  
+
 <script>
-    const ctxVBPS = document.getElementById('DummyChart3').getContext('2d');
+     let currentPage = 1;
+        const itemsPerPage = 5;
+        let totalSalesTable = {}; // Define totalSalesTable globally
+        let sortedSalesmen = [];
+        let sortDirection = 'asc'; // Initialize sort direction
+
+        function calculateTotalSalesTable(orders) {
+            const totalSales = {};
+
+            orders.forEach(order => {
+                const salesman = order["Customer Name"];
+                const sales = parseFloat(order.Sales.replace(/\$/g, '').replace(/,/g, ''));
+
+                // Check unique salesman dan jumlahkan total ordernya
+                if (totalSales[salesman]) {
+                    totalSales[salesman] += sales;
+                } else {
+                    // Jika salesman belum ada, tambahkan salesman baru
+                    totalSales[salesman] = sales;
+                }
+            });
+
+            return totalSales;
+        }
+
+        // Function untuk menampilkan data pada tabel
+        function displaySalesmanTable(totalSalesTable) {
+            const tableBody = document.getElementById('salesman-body');
+
+            // Kosongkan isi tabel sebelum menambahkan data baru
+            tableBody.innerHTML = '';
+
+            // Hitung index awal dan index akhir data yang akan ditampilkan pada halaman ini
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+
+            // Tambahkan baris untuk setiap salesman pada halaman ini
+            const salesmen = sortedSalesmen.slice(startIndex, endIndex);
+            salesmen.forEach(salesman => {
+                const row = `<tr>
+                                <td>${salesman}</td>
+                                <td>${totalSalesTable[salesman].toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            </tr>`;
+                tableBody.innerHTML += row;
+            });
+
+            // Tampilkan atau sembunyikan tombol "Previous" dan "Next" berdasarkan halaman saat ini
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = endIndex >= sortedSalesmen.length;
+
+            // Tampilkan informasi halaman
+            document.getElementById('pageInfo').textContent = `Page ${currentPage}`;
+        }
+
+        function sortSalesmen(totalSalesTable, direction) {
+            const salesmen = Object.keys(totalSalesTable);
+
+            salesmen.sort((a, b) => {
+                if (direction === 'asc') {
+                    return totalSalesTable[a] - totalSalesTable[b];
+                } else {
+                    return totalSalesTable[b] - totalSalesTable[a];
+                }
+            });
+
+            return salesmen;
+        }
+
+        // Event listener untuk tombol "Previous"
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            currentPage--;
+            displaySalesmanTable(totalSalesTable);
+        });
+
+        // Event listener untuk tombol "Next"
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            currentPage++;
+            displaySalesmanTable(totalSalesTable);
+        });
+
+        // Event listener untuk tombol "Sort Asc"
+        document.getElementById('sortAscBtn').addEventListener('click', () => {
+            sortDirection = 'asc';
+            sortedSalesmen = sortSalesmen(totalSalesTable, sortDirection);
+            currentPage = 1;
+            displaySalesmanTable(totalSalesTable);
+        });
+
+        // Event listener untuk tombol "Sort Desc"
+        document.getElementById('sortDescBtn').addEventListener('click', () => {
+            sortDirection = 'desc';
+            sortedSalesmen = sortSalesmen(totalSalesTable, sortDirection);
+            currentPage = 1;
+            displaySalesmanTable(totalSalesTable);
+        });
+
+        function filterTable() {
+            fetchData(DataUrl).then(data => {
+                const filteredData = applyFilters(data);
+                // Use the global totalSalesTable variable
+                totalSalesTable = calculateTotalSalesTable(filteredData);
+                sortedSalesmen = sortSalesmen(totalSalesTable, sortDirection);
+                displaySalesmanTable(totalSalesTable);
+            });
+        }
+    
+</script>
+
+<script>
+  function processDataRegionSales(data) {
+    const aggregatedData = {};
+
+    data.forEach(row => {
+        const region = row.Region;
+        const sales = parseFloat(row.Sales.replace(/\$/g, '').replace(/,/g, ''));
+
+        if (aggregatedData[region]) {
+            aggregatedData[region] += sales;
+        } else {
+            aggregatedData[region] = sales;
+        }
+    });
+
+    return aggregatedData;
+}
+
+// Create the tree map chart
+function createTreeMapChart(processedDataTreeMap) {
+    const datasetTree = Object.keys(processedDataTreeMap).map(region => ({
+        x: region,
+        y: processedDataTreeMap[region]
+    }));
+
+    const options = {
+        series: [{
+            data: datasetTree
+        }],
+        chart: {
+            type: 'treemap',
+            height: 350
+        },tooltip: {
+            formatter: function(val) {
+                return "Total Sales: $" + (val.toLocaleString('en-US', { maximumFractionDigits: 2 })) + "M";
+            }
+        },
+        colors: ['#ff8f00'],
+        legend: {
+            show: true
+        }
+    };
+
+    const chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
+}
+
+function filterTreeMapChart() {
+    fetchData(DataUrl)
+        .then(data => {
+            const filteredData = applyFilters(data);
+            const processedDataTreeMap = processDataRegionSales(filteredData);
+            createTreeMapChart(processedDataTreeMap);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+}
+
+</script>
+
+<script>
+    const ctxVBPS = document.getElementById('VerticalBarchartProductSales').getContext('2d');
     // Hitung Sales per Category
     function processSalesProductData(data) {
         const aggregatedData = {};
@@ -560,7 +744,7 @@
     let VerticalBarChart = null;
 
     function createVerticalBarChartProductSales(data) {
-    let ctxVBPS = document.getElementById("DummyChart3").getContext("2d");
+    let ctxVBPS = document.getElementById("VerticalBarchartProductSales").getContext("2d");
     if (VerticalBarChart != null) {
             VerticalBarChart.data.labels = Object.keys(data); // Perbarui labels
             VerticalBarChart.data.datasets.forEach((dataset) => {
@@ -621,17 +805,30 @@
         document.getElementById('categorySelect').addEventListener('change', filterLineChart);
         document.getElementById('segmentSelect').addEventListener('change', filterLineChart);
 
+        // UPDATE TABLE (CHART ROW 3 COLS 1)
+        document.getElementById('stateSelect').addEventListener('change', filterTable);
+        document.getElementById('categorySelect').addEventListener('change', filterTable);
+        document.getElementById('segmentSelect').addEventListener('change', filterTable);
+
+        // UPDATE TREE MAP (CHART ROW 3 COLS 2)
+        document.getElementById('stateSelect').addEventListener('change', filterTreeMapChart);
+        document.getElementById('categorySelect').addEventListener('change', filterTreeMapChart);
+        document.getElementById('segmentSelect').addEventListener('change', filterTreeMapChart);
+
         // UPDATE VERTICAL CHART (CHART ROW 3 COLS 3)
         document.getElementById('stateSelect').addEventListener('change', filterVerticalBarChart);
         document.getElementById('categorySelect').addEventListener('change', filterVerticalBarChart);
         document.getElementById('segmentSelect').addEventListener('change', filterVerticalBarChart);
 
+        
         // Fetch data, populate dropdowns, dan lakukan kalkulasi awal
         fetchData(DataUrl).then(data => {
             populateDropdowns(data);
             filterBarChart();
             filterLineChart();
             filterVerticalBarChart();
+            filterTreeMapChart();
+            filterTable();
             postDataCard();
         }); 
 </script>

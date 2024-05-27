@@ -1,163 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Total Order per Salesman</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-
-        h2 {
-            margin-top: 20px;
-        }
-
-        table {
-            width: 50%;
-            border-collapse: collapse;
-            margin: 20px auto;
-            border: 1px solid #ddd;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .pagination {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .pagination button {
-            margin: 0 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choropleth Map Chart</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-geo"></script>
 </head>
 <body>
-    <h2>Total Order per Salesman</h2>
-    <table id="salesman-table">
-        <thead>
-            <tr>
-                <th>Salesman</th>
-                <th>Total Order</th>
-            </tr>
-        </thead>
-        <tbody id="salesman-body">
-            <!-- Table content will be added dynamically using JavaScript -->
-        </tbody>
-    </table>
+  <canvas id="canvas" width="800" height="600"></canvas>
 
-    <div class="pagination">
-        <button id="prevBtn" disabled>&laquo; Previous</button>
-        <span id="pageInfo">Page 1</span>
-        <button id="nextBtn">Next &raquo;</button>
-    </div>
+  <script>
+    const DataUrl = 'http://localhost:3000/data';
 
-    <script>
-        const DataUrl = 'http://localhost:3000/data';
-        let currentPage = 1;
-        const itemsPerPage = 5;
-        let totalOrders = {}; // Tambahkan variabel totalOrders di luar fungsi fetchData
+    // Ambil data dari URL
+    function fetchData(url) {
+      return fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .catch(error => {
+          console.error('There was a problem with the fetch operation:', error);
+        });
+    }
 
-        // Ambil data dari JSON
-        function fetchData(url) {
-            return fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Hitung total order per salesman
-                    totalOrders = calculateTotalOrders(data);
-                    // Tampilkan data pada tabel
-                    displaySalesmanTable(totalOrders);
-                })
-                .catch(error => {
-                    console.error('There was a problem with the fetch operation:', error);
-                });
-        }
+    // Ambil data peta dari URL dan buat choropleth map
+    fetchData('https://unpkg.com/us-atlas/states-10m.json')
+      .then(us => {
+        const nation = ChartGeo.topojson.feature(us, us.objects.nation).features[0];
+        const states = ChartGeo.topojson.feature(us, us.objects.states).features;
 
-        // Function untuk menghitung total order per salesman
-        function calculateTotalOrders(orders) {
-            const totalOrders = {};
-
-            orders.forEach(order => {
-                const salesman = order["Customer Name"];
-                const sales = parseFloat(order.Sales.replace(/\$/g, '').replace(/,/g, ''));
-
-                // Check unique salesman dan jumlahkan total ordernya
-                if (totalOrders[salesman]) {
-                    totalOrders[salesman] += sales;
-                } else {
-                    // Jika salesman belum ada, tambahkan salesman baru
-                    totalOrders[salesman] = sales;
-                }
+        // Setelah mendapatkan data peta, ambil juga data penjualan
+        fetchData(DataUrl)
+          .then(salesData => {
+            const chart = new Chart(document.getElementById("canvas").getContext("2d"), {
+              type: 'choropleth',
+              data: {
+                labels: states.map((d) => d.properties.name),
+                datasets: [{
+                  label: 'States',
+                  outline: nation,
+                  data: states.map((d) => ({
+                    feature: d,
+                    value: salesData.find(s => s.State === d.properties.name).Sales // Ambil nilai penjualan sesuai dengan nama negara bagian
+                  })),
+                }]
+              },
+              options: {
+                plugins: {
+                  legend: {
+                    display: false
+                  },
+                },
+                scales: {
+                  projection: {
+                    axis: 'x',
+                    projection: 'albersUsa'
+                  },
+                  color: {
+                    axis: 'x',
+                    quantize: 5,
+                    legend: {
+                      position: 'bottom-right',
+                      align: 'bottom'
+                    },
+                  }
+                },
+              }
             });
-
-            return totalOrders;
-        }
-
-        // Function untuk menampilkan data pada tabel
-        function displaySalesmanTable(totalOrders) {
-            const tableBody = document.getElementById('salesman-body');
-
-            // Kosongkan isi tabel sebelum menambahkan data baru
-            tableBody.innerHTML = '';
-
-            // Hitung index awal dan index akhir data yang akan ditampilkan pada halaman ini
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-
-            // Tambahkan baris untuk setiap salesman pada halaman ini
-            const salesmen = Object.keys(totalOrders).slice(startIndex, endIndex);
-            salesmen.forEach(salesman => {
-                const row = `<tr>
-                                <td>${salesman}</td>
-                                <td>${totalOrders[salesman].toFixed(2)}</td>
-                            </tr>`;
-                tableBody.innerHTML += row;
-            });
-
-            // Tampilkan atau sembunyikan tombol "Previous" dan "Next" berdasarkan halaman saat ini
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = endIndex >= Object.keys(totalOrders).length;
-
-            // Tampilkan informasi halaman
-            document.getElementById('pageInfo').textContent = `Page ${
-                currentPage}`;
-
-}
-
-// Event listener untuk tombol "Previous"
-document.getElementById('prevBtn').addEventListener('click', () => {
-    currentPage--;
-    displaySalesmanTable(totalOrders);
-});
-
-// Event listener untuk tombol "Next"
-document.getElementById('nextBtn').addEventListener('click', () => {
-    currentPage++;
-    displaySalesmanTable(totalOrders);
-});
-
-// Ambil data dari URL dan tampilkan pada tabel
-fetchData(DataUrl);
-</script>
+          })
+          .catch(error => {
+            console.error('There was a problem fetching sales data:', error);
+          });
+      })
+      .catch(error => {
+        console.error('There was a problem fetching map data:', error);
+      });
+  </script>
 </body>
 </html>
