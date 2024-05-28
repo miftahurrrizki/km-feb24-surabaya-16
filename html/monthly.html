@@ -115,15 +115,45 @@
                 </div>
 
                 <div class="right">
-                    <h2 class="font-weight-bold judul">Dummy</h2>
-                    <div><canvas id="DummyChart"></canvas></div>
+                    <h2 class="font-weight-bold judul">State with the Highest Profit</h2>
+                    <div><canvas id="BarChartProfitPerState" width="800" height="400"></canvas></div>
                 </div>
             </div>
 
             <!-- CHART ROW 2 (ini di hapus/diganti aja) -->
             <div class="line-chart">
-                <h2 class="font-weight-bold judul">YoY Sales Performance</h2>
-                <div><canvas id="LineChartSalesProfit"width="400" height="100"></canvas></div>
+                <h2 class="font-weight-bold judul">Monthly Sales Performance</h2>
+                <div><canvas id="LineChartMonthlySales"width="400" height="100"></canvas></div>
+            </div>
+
+            <!-- CHART ROW 3 -->
+            <div class="chartContainer">
+                <div class="left">
+                    <h2 class="font-weight-bold">Profit Per Category</h2>
+                    <table id="profitpercategory-table">
+                        <thead>
+                            <tr>
+                                <th>Ship_Mode</th>
+                                <th>Office Supplies</th>
+                                <th>Technology</th>
+                                <th>Furniture</th>
+                            </tr>
+                        </thead>
+                        <tbody id="profitpercategory-body">
+                        <!-- Table content will be added dynamically using JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="left">
+                    <h2 class="font-weight-bold">Most Profitable Category</h2>
+                    <div id="chart"></div>
+                </div>
+                
+                <div class="right">
+                    <h2 class="font-weight-bold">Top 5 Sub Category Sales</h2>
+                    <div><canvas id="VerticalBarchartProductSales" height="300"></canvas></div>
+                </div>
             </div>
         </section>
         
