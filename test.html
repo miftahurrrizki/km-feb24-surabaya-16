@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="html/css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts/dist/apexcharts.css">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.3.2/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 </head>
   
 <body>
@@ -37,7 +40,7 @@
             <div class="sections">
                  <!--BUTTON DOWNLOAD PDF-->
                 <div class="#">
-                    <button class="button">Download PDF</button>
+                    <button class="button" id="downloadPDF">Download PDF</button>
                 </div>
                 <!--SHOW RAW DATA-->
                 <div class="#">
@@ -114,8 +117,8 @@
             </div>
 
             <div class="right">
-                <h2 class="font-weight-bold">Dummy</h2>
-                <div><canvas id="DummyChart"></canvas></div>
+                <h2 class="font-weight-bold">State sales performance</h2>
+                <canvas id="StackedBarChartSalesPerState" width="400" ></canvas>
             </div>
         </div>
 
@@ -329,7 +332,7 @@
                     const ctxBSC = document.getElementById('BarChartSalesPerCategory').getContext('2d');
                     
                     // Hitung Sales per Category
-                    function processSalesData(data) {
+                    function processSalesDataPerCategory(data) {
                         const aggregatedData = {};
             
                         data.forEach(row => {
@@ -388,44 +391,11 @@
                     fetchData(DataUrl)
                         .then(data => {
                             const filteredData = applyFilters(data);
-                            const processedDataBarChart = processSalesData(filteredData);
+                            const processedDataBarChart = processSalesDataPerCategory(filteredData);
                             createBarChartSalesCategory(processedDataBarChart);
                         });
                     }
 
-             //------------------------------ DUMMY BARCHART SALES PER CATEGORY --------------------------------               
-                const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-                const data = {
-                    labels: labels,
-                    datasets: [{
-                        label: 'My First Dataset',
-                        data: [65, 59, 80, 81, 56, 55, 40],
-                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                };
-
-                // Konfigurasi chart
-                const config = {
-                    type: 'bar',
-                    data: data,
-                    options: {
-                        responsive: true, // Aktifkan responsif
-                        maintainAspectRatio: false, // Buat chart tidak mempertahankan rasio aspek
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                };
-
-                // Membuat chart
-                var myChart = new Chart(
-                    document.getElementById('DummyChart'),
-                    config
-                );
            //------------------------------ LINE CHART YoY PERFORMANCE --------------------------------
            const preprocessData = (data) => {
                 const result = {};
@@ -566,14 +536,11 @@
         function displaySalesmanTable(totalSalesTable) {
             const tableBody = document.getElementById('salesman-body');
 
-            // Kosongkan isi tabel sebelum menambahkan data baru
             tableBody.innerHTML = '';
 
-            // Hitung index awal dan index akhir data yang akan ditampilkan pada halaman ini
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
 
-            // Tambahkan baris untuk setiap salesman pada halaman ini
             const salesmen = sortedSalesmen.slice(startIndex, endIndex);
             salesmen.forEach(salesman => {
                 const row = `<tr>
@@ -583,13 +550,11 @@
                 tableBody.innerHTML += row;
             });
 
-            // Tampilkan atau sembunyikan tombol "Previous" dan "Next" berdasarkan halaman saat ini
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
             prevBtn.disabled = currentPage === 1;
             nextBtn.disabled = endIndex >= sortedSalesmen.length;
 
-            // Tampilkan informasi halaman
             document.getElementById('pageInfo').textContent = `Page ${currentPage}`;
         }
 
@@ -746,20 +711,20 @@ function filterTreeMapChart() {
     function createVerticalBarChartProductSales(data) {
     let ctxVBPS = document.getElementById("VerticalBarchartProductSales").getContext("2d");
     if (VerticalBarChart != null) {
-            VerticalBarChart.data.labels = Object.keys(data); // Perbarui labels
+            VerticalBarChart.data.labels = Object.keys(data);
             VerticalBarChart.data.datasets.forEach((dataset) => {
-            dataset.data = Object.values(data); // Perbarui data
+            dataset.data = Object.values(data); 
         });
         return VerticalBarChart.update();
     }
     VerticalBarChart = new Chart(ctxVBPS, {
         type: "bar",
         data: {
-            labels: Object.keys(data), // Label adalah kategori
+            labels: Object.keys(data), 
             datasets: [
                 {
                     label: "Total Quantity Sales Product",
-                    data: Object.values(data), // Data adalah total penjualan
+                    data: Object.values(data), 
                     borderWidth: 1,
                 },
             ],
@@ -786,6 +751,105 @@ function filterTreeMapChart() {
             createVerticalBarChartProductSales(processedDataVerticalBarChart);
         });
     }
+    
+    //----------------------------------- STACKED BAR CHART STATE SALES -----------------------------------------
+    const colorPalette = ['#1B1A17', '#F0A500', '#E45826', '#E6D5B8'];
+
+
+    function processStackedBarChartSalesDataPerCategory(data) {
+            const SalesDataPerCategory = {};
+
+            data.forEach(item => {
+                const state = item["State"];
+                const category = item["Category"];
+                const sales = parseFloat(item["Sales"].replace('$', '').replace(',', '.'));
+
+                if (!SalesDataPerCategory[state]) {
+                    SalesDataPerCategory[state] = {};
+                }
+                if (SalesDataPerCategory[state][category]) {
+                    SalesDataPerCategory[state][category] += sales;
+                } else {
+                    SalesDataPerCategory[state][category] = sales;
+                }
+            });
+
+            return SalesDataPerCategory;
+        }
+
+        function prepareStackedChartData(SalesDataPerCategory) {
+            const states = Object.keys(SalesDataPerCategory);
+            const categories = new Set();
+
+            states.forEach(state => {
+                Object.keys(SalesDataPerCategory[state]).forEach(category => {
+                    categories.add(category);
+                });
+            });
+
+            const totalSalesByState = states.map(state => {
+                return {
+                    state: state,
+                    totalSales: Object.values(SalesDataPerCategory[state]).reduce((a, b) => a + b, 0)
+                };
+            });
+
+            totalSalesByState.sort((a, b) => b.totalSales - a.totalSales);
+
+            // Select top 10 states by total sales
+            const topStates = totalSalesByState.slice(0, 10).map(item => item.state);
+
+            const datasets = Array.from(categories).map((category, index) => {
+                return {
+                    label: category,
+                    data: topStates.map(state => SalesDataPerCategory[state][category] || 0),
+                    backgroundColor: colorPalette[index % colorPalette.length]
+                };
+            });
+
+            return {
+                labels: topStates,
+                datasets: datasets
+            };
+        }
+
+        let StackedBarChart = null;
+
+        function createStackedBarChart(chartData) {
+            const ctxSBC = document.getElementById('StackedBarChartSalesPerState').getContext('2d');
+            if (StackedBarChart != null) {
+                StackedBarChart.data = chartData;
+                return StackedBarChart.update();
+            }
+
+            StackedBarChart = new Chart(ctxSBC, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fetch, process, and render the data
+        function filterStackedBarChart() {
+            fetchData(DataUrl).then(data => {
+                if (data) {
+                    const filteredData = applyFilters(data);
+                    const SalesDataPerCategory = processStackedBarChartSalesDataPerCategory(filteredData);
+                    const chartData = prepareStackedChartData(SalesDataPerCategory);
+                    createStackedBarChart(chartData);
+                }
+            });
+        }
 </script>
 
 <script>
@@ -795,10 +859,15 @@ function filterTreeMapChart() {
         document.getElementById('categorySelect').addEventListener('change', postDataCard);
         document.getElementById('segmentSelect').addEventListener('change', postDataCard);
 
-        // UPDATE BARCHART (CHART ROW 1)
+        // UPDATE BARCHART (CHART ROW 1 COLS 1)
         document.getElementById('stateSelect').addEventListener('change', filterBarChart);
         document.getElementById('categorySelect').addEventListener('change', filterBarChart);
         document.getElementById('segmentSelect').addEventListener('change', filterBarChart);
+         
+        // UPDATE BARCHART (CHART ROW 1 COLS 2)
+        document.getElementById('stateSelect').addEventListener('change', filterStackedBarChart);
+        document.getElementById('categorySelect').addEventListener('change', filterStackedBarChart);
+        document.getElementById('segmentSelect').addEventListener('change', filterStackedBarChart);
         
         // UPDATE LINECHART (CHART ROW 2)
         document.getElementById('stateSelect').addEventListener('change', filterLineChart);
@@ -829,6 +898,7 @@ function filterTreeMapChart() {
             filterVerticalBarChart();
             filterTreeMapChart();
             filterTable();
+            filterStackedBarChart();
             postDataCard();
         }); 
 </script>
@@ -892,7 +962,40 @@ function filterTreeMapChart() {
      });
  </script>
 
+<script src="https://cdn.jsdelivr.net/npm/dom-to-image@2.6.0/dist/dom-to-image.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+    // Include the html2canvas and jsPDF libraries in the download.js script
 
+// Function to download the page as a PDF
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('downloadPDF').addEventListener('click', function () {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        html2canvas(document.body).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = 210; // A4 width in mm
+            const pageHeight = 295; // A4 height in mm
+            const imgHeight = canvas.height * imgWidth / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                doc.addPage();
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            doc.save('page.pdf');
+        });
+    });
+});
+</script>
 </body>
 </html>
 
