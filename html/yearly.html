@@ -7,9 +7,9 @@
         <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
         <link rel="stylesheet" href="./css/style.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts/dist/apexcharts.css">
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
         
-
-
     </head>
     
     <body>
@@ -38,7 +38,7 @@
                 <div class="sections">
                     <!--BUTTON DOWNLOAD PDF-->
                     <div class="#">
-                        <button class="button">Download PDF</button>
+                        <button class="button" id="downloadPDF">Download PDF</button>
                     </div>
                     <!--SHOW RAW DATA-->
                     <div class="#">
@@ -110,20 +110,54 @@
             <!-- CHART ROW 1 -->
             <div class="chartContainer">
                 <div class="left">
-                    <h2 class="font-weight-bold judul">Sales by Category</h2>
-                    <div><canvas id="BarChartSalesPerCategory"></canvas></div>
+                    <h2 class="font-weight-bold">Sales by Category</h2>
+                    <div><canvas id="BarChartSalesPerCategory" width="400"></canvas></div>
                 </div>
 
                 <div class="right">
-                    <h2 class="font-weight-bold judul">Dummy</h2>
-                    <div><canvas id="DummyChart"></canvas></div>
+                    <h2 class="font-weight-bold">State sales performance</h2>
+                    <canvas id="StackedBarChartSalesPerState" width="400" ></canvas>
                 </div>
             </div>
 
             <!-- CHART ROW 2 -->
             <div class="line-chart">
-                <h2 class="font-weight-bold judul">YoY Sales Performance</h2>
-                <div><canvas id="LineChartSalesProfit"width="400" height="100"></canvas></div>
+                <h2 class="font-weight-bold">YoY Sales Performance</h2>
+                <div><canvas id="LineChartSalesProfit" width="400" height="100"></canvas></div>
+            </div>
+
+            <!-- CHART ROW 3 -->
+            <div class="chartContainer">
+                <div class="left">
+                    <h2 class="font-weight-bold">Top Performanced Salesman</h2>
+                    <table id="salesman-table">
+                        <thead>
+                            <tr>
+                                <th>Salesman</th>
+                                <th>Total Sales
+                                    <button id="sortAscBtn">↓</button>
+                                    <button id="sortDescBtn">↑</button></th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesman-body">
+                        </tbody>
+                    </table>
+                
+                    <div class="pagination">
+                            <button id="prevBtn" disabled>&laquo; Previous</button>
+                            <span id="pageInfo">Page 1</span>
+                            <button id="nextBtn">Next &raquo;</button>
+                    </div>
+                </div>
+
+                <div class="left">
+                    <h2 class="font-weight-bold">Sales per Region</h2>
+                    <div id="TreeMapChartSalesRegion"></div>
+                </div>
+                <div class="right">
+                    <h2 class="font-weight-bold">Top 5 Product Sold based on Quantity Sales</h2>
+                    <div><canvas id="VerticalBarchartProductSales" height="300"></canvas></div>
+                </div>
             </div>
         </section>
         
@@ -236,4 +270,41 @@
         }
     });
      });
+</script>
+
+
+<script>
+    // Include the html2canvas and jsPDF libraries in the download.js script
+document.write('<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.3.2/dist/html2canvas.min.js"><\/script>');
+document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>');
+
+// Function to download the page as a PDF
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('downloadPDF').addEventListener('click', function () {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        html2canvas(document.body).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = 210; // A4 width in mm
+            const pageHeight = 295; // A4 height in mm
+            const imgHeight = canvas.height * imgWidth / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                doc.addPage();
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            doc.save('page.pdf');
+        });
+    });
+});
+
 </script>
