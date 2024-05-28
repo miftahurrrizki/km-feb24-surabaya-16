@@ -344,6 +344,90 @@ fetch(DataUrl)
     })
     .catch(error => console.error('Error fetching data:', error));
 
+//------------------------------------- TABEL PROFIT PER CATEGORY ---------------------------------------
+let totalProfitTable = {}; // Define totalProfitTable globally
+let sortedShipModes = [];
+let sortDirection = 'desc'; // Initialize sort direction
+
+// Fungsi untuk memproses data profit berdasarkan kategori dan ship mode
+function calculateTotalProfitTable(orders) {
+    const totalProfit = {};
+
+    orders.forEach(order => {
+        const category = order["Category"];
+        const shipMode = order["Ship Mode"];
+        const profit = parseFloat(order.Profit.replace(/[^0-9.-]+/g, ''));
+
+        if (!totalProfit[shipMode]) {
+            totalProfit[shipMode] = { "Office Supplies": 0, "Technology": 0, "Furniture": 0 };
+        }
+
+        if (category === "Technology" || category === "Office Supplies" || category === "Furniture") {
+            totalProfit[shipMode][category] += profit;
+        }
+    });
+
+    return totalProfit;
+}
+
+// Fungsi untuk menampilkan data pada tabel
+function displayProfitTable(totalProfitTable) {
+    const tableBody = document.getElementById('profitpercategory-body');
+
+    // Kosongkan isi tabel sebelum menambahkan data baru
+    tableBody.innerHTML = '';
+
+    // Tambahkan baris untuk setiap ship mode
+    sortedShipModes.forEach(shipMode => {
+        const row = `<tr>
+                        <td>${shipMode}</td>
+                        <td>${totalProfitTable[shipMode]["Office Supplies"].toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+                        <td>${totalProfitTable[shipMode]["Technology"].toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+                        <td>${totalProfitTable[shipMode]["Furniture"].toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+                    </tr>`;
+        tableBody.innerHTML += row;
+    });
+}
+
+// Fungsi untuk mengurutkan data berdasarkan total profit
+function sortShipModes(totalProfitTable, direction) {
+    const shipModes = Object.keys(totalProfitTable);
+
+    shipModes.sort((a, b) => {
+        const totalProfitA = totalProfitTable[a]["Technology"] + totalProfitTable[a]["Office Supplies"] + totalProfitTable[a]["Furniture"];
+        const totalProfitB = totalProfitTable[b]["Technology"] + totalProfitTable[b]["Office Supplies"] + totalProfitTable[b]["Furniture"];
+        return direction === 'asc' ? totalProfitA - totalProfitB : totalProfitB - totalProfitA;
+    });
+
+    return shipModes;
+}
+
+// Fungsi untuk mengambil data dan memperbarui tabel
+function fetchDataAndRenderTable() {
+    fetch(DataUrl)
+        .then(response => response.json())
+        .then(data => {
+            totalProfitTable = calculateTotalProfitTable(data);
+            sortedShipModes = sortShipModes(totalProfitTable, sortDirection);
+            displayProfitTable(totalProfitTable);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+}
+
+// Inisialisasi data dan render tabel saat halaman dimuat
+document.addEventListener('DOMContentLoaded', () => {
+    fetchDataAndRenderTable();
+});
+
+// Fungsi Filter Tabel
+function filterTable() {
+    fetchData(DataUrl).then(data => {
+        const filteredData = applyFilters(data);
+        // Use the global total Profit Table variable
+        totalProfitTable = calculateTotalProfitTable(filteredData);
+        displayProfitTable(totalProfitTable);
+    });
+}
 
 
 
