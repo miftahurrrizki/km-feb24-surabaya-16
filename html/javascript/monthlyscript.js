@@ -344,7 +344,7 @@ fetch(DataUrl)
     })
     .catch(error => console.error('Error fetching data:', error));
 
-//------------------------------------- TABEL PROFIT PER CATEGORY ---------------------------------------
+//------------------------------------- TABLE PROFIT PER CATEGORY ---------------------------------------
 let totalProfitTable = {}; // Define totalProfitTable globally
 let sortedShipModes = [];
 let sortDirection = 'desc'; // Initialize sort direction
@@ -429,11 +429,308 @@ function filterTable() {
     });
 }
 
+//------------------------------------- HORIZONTAL BAR CHART MOST PROFITABLE CATEGORY ---------------------------------------
+// const ctxVBPS = document.getElementById('VerticalBarchartProfitableCategory').getContext('2d');
 
+// Fungsi untuk memproses data profit per kategori
+// function processProfitProductData(data) {
+//     const aggregatedData = {};
+    
+//     data.forEach(row => {
+//         const category = row["Category"];
+//         const profit = parseFloat(row["Profit"]);
+        
+        // check unique category terus jumlahkan profitnya
+    //     if (aggregatedData[category]) {
+    //         aggregatedData[category] += profit;
+    //     } else {
+    //         // Jika kategori belum ada, tambahkan kategori baru
+    //         aggregatedData[category] = profit;
+    //     }
+    // });
+    
+    // Urutkan kategori berdasarkan profit dari tertinggi ke terendah
+    // const sortedCategories = Object.keys(aggregatedData).sort((a, b) => aggregatedData[b] - aggregatedData[a]);
 
+    // Ambil hanya 3 kategori teratas
+    // const top3Categories = sortedCategories.slice(0, 3);
 
+    // Buat objek baru untuk menyimpan hanya 3 kategori teratas
+    // const top3Data = {};
+    // top3Categories.forEach(category => {
+    //     top3Data[category] = aggregatedData[category];
+    // });
+    
+    // return top3Data;
 
+    // }
+    
+    // let VerticalBarChartProfitable = null;
+    
+    // Fungsi untuk membuat chart
+    // function createVerticalBarChartProfitableCategory(data) {
+    //     const ctxVBPS = document.getElementById("VerticalBarChartProfitableCategory").getContext("2d");
+    //     if (VerticalBarChartProfitable != null) {
+    //         VerticalBarChartProfitable.data.labels = Object.keys(data); // Perbarui labels
+    //         VerticalBarChartProfitable.data.datasets.forEach((dataset) => {
+    //             dataset.data = Object.values(data); // Perbarui data
+    //         });
+    //         return VerticalBarChartProfitable.update();
+    //     }
+    //     VerticalBarChartProfitable = new Chart(ctxVBPS, {
+    //         type: "bar",
+    //         data: {
+    //             labels: Object.keys(data), // Label adalah kategori
+    //             datasets: [
+    //                 {
+    //                     label: "Total Profit per Category",
+    //                     data: Object.values(data), // Data adalah total profit
+    //                     backgroundColor: [
+    //                         'rgba(255, 99, 132, 0.2)',
+    //                         'rgba(54, 162, 235, 0.2)',
+    //                         'rgba(75, 192, 192, 0.2)'
+    //                     ],
+    //                     borderColor: [
+    //                         'rgba(255, 99, 132, 1)',
+    //                         'rgba(54, 162, 235, 1)',
+    //                         'rgba(75, 192, 192, 1)'
+    //                     ],
+    //                     borderWidth: 1
+    //                 },
+    //             ],
+    //         },
+    //         options: {
+    //             indexAxis: 'y',
+    //             responsive: true,
+    //             maintainAspectRatio: false,
+    //             scales: {
+    //                 x: {
+    //                     beginAtZero: true,
+    //                 },
+    //             },
+    //         },
+    //     });
+    // }
 
+    // Ambil data penjualan dari server, proses, dan buat chart
+    // function filterVerticalBarChart (){
+    // fetchData(DataUrl)
+    //     .then(data => {
+    //         const filteredData = applyFilters(data);
+    //         const processedDataVerticalBarChart = processProfitProductData(filteredData);
+    //         createVerticalBarChartProfitableCategory(processedDataVerticalBarChart);
+    //     });
+    // }
+
+//------------------------------------- HORIZONTAL BAR CHART TOP 10 SALES SUB CATEGORY ---------------------------------------
+// Fetch data dari URL
+fetchData(DataUrl).then(data => {
+    if (!data) return;
+
+    // Memproses data untuk mengumpulkan sales by sub-category
+    const subCategorySales = {};
+
+    data.forEach(order => {
+        const subCategory = order["Sub-Category"];
+        const sales = parseFloat(order.Sales.replace(/[^0-9.-]+/g, ""));
+
+        if (!subCategorySales[subCategory]) {
+            subCategorySales[subCategory] = 0;
+        }
+
+        subCategorySales[subCategory] += sales;
+    });
+
+    // Mengubah objek subCategorySales menjadi array [subCategory, sales]
+    const salesArray = Object.entries(subCategorySales);
+
+    // Mengurutkan array berdasarkan order dalam descending dan ambil Top 10 sub category
+    const top10Sales = salesArray.sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+    // Pisahkan Top 10 sub category dan Sales ke dalam arrays terpisah
+    const subCategories = top10Sales.map(item => item[0]);
+    const sales = top10Sales.map(item => item[1]);
+
+    // Membuat bar chart
+    const ctx = document.getElementById('SubsalesChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: subCategories,
+            datasets: [{
+                label: 'Sales by Sub Category',
+                data: sales,
+                backgroundColor: 'rgba(255, 143, 0, 1)',
+                borderColor: 'rgba(255, 143, 0, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+
+fetch(DataUrl)
+    .then(response => response.json())
+    .then(data => {
+        const processedDataLineChart = preprocessData(data);
+        createLineChart(processedDataLineChart);
+    })
+    .catch(error => console.error('Error fetching data:', error));
+
+//--------------------------- BAR CHART THE MOST PROFITABLE AND HIGHEST SALES -----------------------------
+// Ambil data dari JSON
+// function fetchData(url) {
+//     return fetch(url)
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error('Network response was not ok');
+//             }
+//             return response.json();
+//         })
+//         .catch(error => {
+//             console.error('There was a problem with the fetch operation:', error);
+//         });
+// }
+
+// Fungsi untuk mengubah format data
+// function processData(data) {
+//     const products = {};
+    
+    // Loop melalui setiap item dalam data
+    // data.forEach(item => {
+    //     const productName = item["Product Name"];
+    //     const profit = parseFloat(item["Profit"].replace("$", "").replace(",", ""));
+    //     const sales = parseFloat(item["Sales"].replace("$", "").replace(",", ""));
+        
+        // Jika nama produk sudah ada dalam objek products, tambahkan profit dan sales
+    //     if (products[productName]) {
+    //         products[productName].profit += profit;
+    //         products[productName].sales += sales;
+    //     } else { // Jika tidak, buat entri baru untuk produk tersebut
+    //         products[productName] = {
+    //             profit: profit,
+    //             sales: sales
+    //         };
+    //     }
+    // });
+    
+    // Mengurutkan produk berdasarkan profit tertinggi
+//     const sortedProducts = Object.entries(products).sort((a, b) => b[1].profit - a[1].profit).slice(0, 10);
+
+//     return sortedProducts;
+// }
+
+// Membuat chart
+// async function createChart() {
+//     const data = await fetchData(DataUrl);
+//     const processedData = processData(data);
+    
+//     const productNames = processedData.map(item => item[0]);
+//     const profits = processedData.map(item => item[1].profit);
+//     const sales = processedData.map(item => item[1].sales);
+    
+//     const ctx = document.getElementById('myChart').getContext('2d');
+//     const myChart = new Chart(ctx, {
+//         type: 'bar',
+//         data: {
+//             labels: productNames,
+//             datasets: [{
+//                 label: 'Sales',
+//                 data: sales,
+//                 backgroundColor: 'rgba(255, 143, 0, 1)',
+//                 borderColor: 'rgba(255, 143, 0, 1)',
+//                 borderWidth: 1
+//             }, {
+//                 label: 'Profit',
+//                 data: profits,
+//                 backgroundColor: 'rgba(0, 0, 0, 1)',
+//                 borderColor: 'rgba(0, 0, 0, 1)',
+//                 borderWidth: 1 
+//             }]
+//         },
+//         options: {
+//             scales: {
+//                 xAxes: [{
+//                     ticks: {
+//                         display: false // Menyembunyikan label di sumbu x
+//                     }
+//                 }],
+//                 yAxes: [{
+//                     ticks: {
+//                         beginAtZero: true
+//                     }
+//                 }]
+//             }
+//         }
+//     });
+// }
+
+// Panggil fungsi untuk membuat chart
+// createChart();
+
+//---------------------------------- BAR CHART TOTAL SALES AND PROFIT ------------------------------------
+// Fungsi untuk menghitung total sales dan total profit
+function calculateSalesProfit(data) {
+    let totalSales = 0;
+    let totalProfit = 0;
+
+    data.forEach(item => {
+        totalSales += parseFloat(item.Sales.replace("$", "").replace(",", ""));
+        totalProfit += parseFloat(item.Profit.replace("$", "").replace(",", ""));
+    });
+
+    return {
+        totalSales: totalSales,
+        totalProfit: totalProfit
+    };
+}
+
+// Membuat chart
+async function createChart() {
+    const data = await fetchData(DataUrl);
+    const { totalSales, totalProfit } = calculateSalesProfit(data);
+
+    const ctx = document.getElementById('salesProfitChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Total Sales', 'Total Profit'],
+            datasets: [{
+                label: 'Amount ($)',
+                data: [totalSales, totalProfit],
+                backgroundColor: [
+                    'rgba(255, 143, 0, 1)',
+                    'rgba(0, 0, 0, 1)',
+                ],
+                borderColor: [
+                    'rgba(255, 143, 0, 1)',
+                    'rgba(0, 0, 0, 1)',
+                ],
+                borderWidth: 1
+                
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+}
+
+// Panggil fungsi untuk membuat chart
+createChart();
 
 //------------------------------------^^^^^^^ KALAU MAU TAMBAH CHART DISINI (INI BATASNYA)!!!!! ^^^^^-----------------------------------------
 //------------------------------------------------ EVENT LISTENER ------------------------------------------------
