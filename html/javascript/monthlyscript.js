@@ -124,7 +124,7 @@ function processSalesData(data) {
     });
 
     // Mengubah objek aggregatedData menjadi array untuk diurutkan
-    const sortedDataArray = Object.entries(aggregatedData).sort((a, b) => b[1] - a[1]);
+    const sortedDataArray = Object.entries(aggregatedData).sort((a, b) => b[1] - a[1]).slice(0, 10);
 
     // Mengembalikan objek yang diurutkan
     const sortedData = {};
@@ -200,7 +200,7 @@ function processProfitData(data) {
     });
 
     // Mengubah objek aggregatedData menjadi array untuk diurutkan
-    const sortedDataArray = Object.entries(aggregatedData).sort((a, b) => b[1] - a[1]);
+    const sortedDataArray = Object.entries(aggregatedData).sort((a, b) => b[1] - a[1]).slice(0, 10);
 
     // Mengembalikan objek yang diurutkan
     const sortedData = {};
