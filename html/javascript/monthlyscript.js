@@ -684,7 +684,7 @@ fetch(DataUrl)
 // createChart();
 
 //---------------------------------- BAR CHART TOTAL SALES AND PROFIT ------------------------------------
-let myChartInstance = null; // Variabel global untuk menyimpan referensi chart
+let salesProfitChart = null; // Variabel global untuk menyimpan referensi chart
 
         // Fungsi untuk mengambil data dari JSON
         function fetchData(url) {
@@ -728,11 +728,11 @@ let myChartInstance = null; // Variabel global untuk menyimpan referensi chart
             const ctx = document.getElementById('salesProfitChart').getContext('2d');
 
             // Cek apakah chart sudah ada, dan jika ada, hancurkan
-            if (myChartInstance) {
-                myChartInstance.destroy();
+            if (salesProfitChart) {
+                salesProfitChart.destroy();
             }
 
-            myChartInstance = new Chart(ctx, {
+            salesProfitChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Total Sales', 'Total Profit'],
