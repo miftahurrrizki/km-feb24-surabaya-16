@@ -684,61 +684,89 @@ fetch(DataUrl)
 // createChart();
 
 //---------------------------------- BAR CHART TOTAL SALES AND PROFIT ------------------------------------
-// Fungsi untuk menghitung total sales dan total profit
-function calculateSalesProfit(data) {
-    let totalSales = 0;
-    let totalProfit = 0;
+let myChartInstance = null; // Variabel global untuk menyimpan referensi chart
 
-    data.forEach(item => {
-        totalSales += parseFloat(item.Sales.replace("$", "").replace(",", ""));
-        totalProfit += parseFloat(item.Profit.replace("$", "").replace(",", ""));
-    });
-
-    return {
-        totalSales: totalSales,
-        totalProfit: totalProfit
-    };
-}
-
-// Membuat chart
-async function createChart() {
-    const data = await fetchData(DataUrl);
-    const { totalSales, totalProfit } = calculateSalesProfit(data);
-
-    const ctx = document.getElementById('salesProfitChart').getContext('2d');
-    const myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Total Sales', 'Total Profit'],
-            datasets: [{
-                label: 'Amount ($)',
-                data: [totalSales, totalProfit],
-                backgroundColor: [
-                    'rgba(255, 143, 0, 1)',
-                    'rgba(0, 0, 0, 1)',
-                ],
-                borderColor: [
-                    'rgba(255, 143, 0, 1)',
-                    'rgba(0, 0, 0, 1)',
-                ],
-                borderWidth: 1
-                
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
+        // Fungsi untuk mengambil data dari JSON
+        function fetchData(url) {
+            return fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
                     }
-                }]
-            }
+                    return response.json();
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                });
         }
-    });
-}
 
-// Panggil fungsi untuk membuat chart
-createChart();
+        // Fungsi untuk menghitung total sales dan total profit
+        function calculateSalesProfit(data) {
+            let totalSales = 0;
+            let totalProfit = 0;
+
+            data.forEach(item => {
+                totalSales += parseFloat(item.Sales.replace("$", "").replace(",", ""));
+                totalProfit += parseFloat(item.Profit.replace("$", "").replace(",", ""));
+            });
+
+            return {
+                totalSales: totalSales,
+                totalProfit: totalProfit
+            };
+        }
+
+        // Membuat chart
+        async function createChart() {
+            const data = await fetchData(DataUrl);
+            if (!data) {
+                console.error('No data fetched');
+                return;
+            }
+            const { totalSales, totalProfit } = calculateSalesProfit(data);
+
+            const ctx = document.getElementById('salesProfitChart').getContext('2d');
+
+            // Cek apakah chart sudah ada, dan jika ada, hancurkan
+            if (myChartInstance) {
+                myChartInstance.destroy();
+            }
+
+            myChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Total Sales', 'Total Profit'],
+                    datasets: [{
+                        label: 'Amount ($)',
+                        data: [totalSales, totalProfit],
+                        backgroundColor: [
+                            'rgba(255, 143, 0, 1)',
+                            'rgba(0, 0, 0, 1)',
+                        ],
+                        borderColor: [
+                            'rgba(255, 143, 0, 1)',
+                            'rgba(0, 0, 0, 1)',
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            ticks: {
+                                display: false // Menyembunyikan label di sumbu x
+                            }
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Panggil fungsi untuk membuat chart
+        createChart();
 
 //------------------------------------^^^^^^^ KALAU MAU TAMBAH CHART DISINI (INI BATASNYA)!!!!! ^^^^^-----------------------------------------
 //------------------------------------------------ EVENT LISTENER ------------------------------------------------
