@@ -261,88 +261,96 @@ fetchData(DataUrl)
     })
 
 //-------------------------------- LINE CHART MONTHLY SALES PERFORMANCE ----------------------------------
-// Fungsi untuk memproses data penjualan bulanan
-const preprocessData = (data) => {
-    const result = {};
+let lineChartInstance = null; // Variabel global untuk menyimpan referensi chart
 
-    data.forEach(order => {
-        const date = new Date(order["Order Date"]);
-        const month = date.toLocaleString('default', { month: 'long' });
+        // Fungsi untuk memproses data penjualan bulanan
+        const preprocessData = (data) => {
+            const result = {};
 
-        if (!result[month]) {
-            result[month] = { sales: 0 };
-        }
+            data.forEach(order => {
+                const date = new Date(order["Order Date"]);
+                const month = date.toLocaleString('default', { month: 'long' });
 
-        result[month].sales += parseFloat(order.Sales.replace(/[^0-9.-]+/g, ""));
-    });
-
-    const sortedData = [];
-
-    Object.keys(result).sort((a, b) => {
-        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        return months.indexOf(a) - months.indexOf(b);
-    }).forEach(month => {
-        sortedData.push({
-            month: month,
-            sales: result[month].sales
-        });
-    });
-
-    return sortedData;
-};
-
-// Konfigurasi line chart untuk penjualan bulanan
-const createLineChart = (processedData) => {
-    const labelsMonth = processedData.map(data => data.month);
-    const sales = processedData.map(data => data.sales);
-
-    const ctxLSP = document.getElementById('LineChartMonthlySales').getContext('2d');
-    new Chart(ctxLSP, {
-        type: 'line',
-        data: {
-            labels: labelsMonth,
-            datasets: [
-                {
-                    label: 'Sales',
-                    data: sales,
-                    backgroundColor: 'rgba(255, 143, 0, 1)',
-                    borderColor: 'rgba(255, 143, 0, 1)',
-                    borderWidth: 2,
-                    fill: false,
-                    tension: 0.2,
+                if (!result[month]) {
+                    result[month] = { sales: 0 };
                 }
-            ]
-        },
-        options: {
-            responsive: true, 
-            maintainAspectRatio: false, 
-            scales: {
-                x: {
-                    display: true,
-                    title: {
-                        display: true,
-                    }
-                },
-                y: {
-                    display: true,
-                    title: {
-                        display: true,
-                        text: 'Amount ($)'
-                    }
-                }
+
+                result[month].sales += parseFloat(order.Sales.replace(/[^0-9.-]+/g, ""));
+            });
+
+            const sortedData = [];
+
+            Object.keys(result).sort((a, b) => {
+                const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                return months.indexOf(a) - months.indexOf(b);
+            }).forEach(month => {
+                sortedData.push({
+                    month: month,
+                    sales: result[month].sales
+                });
+            });
+
+            return sortedData;
+        };
+
+        // Konfigurasi line chart untuk penjualan bulanan
+        const createLineChart = (processedData) => {
+            const labelsMonth = processedData.map(data => data.month);
+            const sales = processedData.map(data => data.sales);
+
+            const ctxLSP = document.getElementById('LineChartMonthlySales').getContext('2d');
+
+            // Cek apakah chart sudah ada, dan jika ada, hancurkan
+            if (lineChartInstance) {
+                lineChartInstance.destroy();
             }
-        }
-    });
-};
 
-// Fetching data dari JSON
-fetch(DataUrl)
-    .then(response => response.json())
-    .then(data => {
-        const processedDataLineChart = preprocessData(data);
-        createLineChart(processedDataLineChart);
-    })
-    .catch(error => console.error('Error fetching data:', error));
+            lineChartInstance = new Chart(ctxLSP, {
+                type: 'line',
+                data: {
+                    labels: labelsMonth,
+                    datasets: [
+                        {
+                            label: 'Sales',
+                            data: sales,
+                            backgroundColor: 'rgba(255, 143, 0, 1)',
+                            borderColor: 'rgba(255, 143, 0, 1)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.2,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Amount ($)'
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        // Fetching data dari JSON
+        fetch(DataUrl)
+            .then(response => response.json())
+            .then(data => {
+                const processedDataLineChart = preprocessData(data);
+                createLineChart(processedDataLineChart);
+            })
+            .catch(error => console.error('Error fetching data:', error));
 
 //------------------------------------- TABLE PROFIT PER CATEGORY ---------------------------------------
 let totalProfitTable = {}; // Define totalProfitTable globally
