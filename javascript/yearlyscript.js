@@ -1,5 +1,5 @@
    //------------------------------ GENERAL FUNCTION ----------------------------------
-   const DataUrl = 'http://localhost:3000/data';
+   const DataUrl = '/data/Superstore.json';
             
    // Ambil data dari json
    function fetchData(url) {
