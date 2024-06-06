@@ -149,6 +149,8 @@
                                 {
                                     label: "Total Sales by Category",
                                     data: Object.values(data), // Data adalah total penjualan
+                                    backgroundColor: 'rgba(255, 143, 0, 1)',
+                                    borderColor: 'rgba(255, 143, 0, 1)',
                                     borderWidth: 1,
                                 },
                             ],
@@ -498,7 +500,9 @@ function filterTreeMapChart() {
             datasets: [
                 {
                     label: "Total Quantity Sales Product",
-                    data: Object.values(data), 
+                    data: Object.values(data),
+                    backgroundColor: 'rgba(255, 143, 0, 1)',
+                    borderColor: 'rgba(255, 143, 0, 1)', 
                     borderWidth: 1,
                 },
             ],
