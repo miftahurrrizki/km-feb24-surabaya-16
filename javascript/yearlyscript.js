@@ -236,7 +236,8 @@
                         {
                             label: 'Sales',
                             data: sales,
-                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(255, 143, 0, 1)',
+                            borderColor: 'rgba(255, 143, 0, 1)',
                             borderWidth: 2,
                             fill: false,
                             tension: 0.2,
@@ -244,7 +245,8 @@
                         {
                             label: 'Profit',
                             data: profits,
-                            borderColor: 'rgba(153, 102, 255, 1)',
+                            backgroundColor: 'rgba(0, 0, 0, 1)',
+                            borderColor: 'rgba(0, 0, 0, 1)',
                             borderWidth: 2,
                             fill: false,
                             tension: 0.2,
